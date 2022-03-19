@@ -1,0 +1,86 @@
+.form, .search {
+
+	p.form_title {
+		font-size: 2rem;
+		font-weight: bold;
+		margin-bottom: 10px;
+	}
+
+	.actions {
+		flex: 0 0 auto;
+		display: flex;
+		padding: 8px 0;
+		align-items: center;
+		justify-content: flex-end;
+	}
+}
+
+.results {
+
+	td[class*="field_"] {
+		background-color: #ffffff;
+	}
+
+	td.actions {
+		background-color: #ffffff;
+
+		button {
+			margin-left: 10px;
+			padding: 0;
+
+			i.open {
+				color: #28c128;
+			}
+		}
+	}
+
+	tfoot {
+
+		tr {
+			background-color: #eeeeee;
+		}
+	}
+
+	th {
+		background-color: #eaeaea;
+	}
+
+	tr.action_row {
+		background-color: #f3f3f3;
+	}
+
+	div[class*="node_"] {
+
+		input {
+			background-color: #ffffff;
+		}
+	}
+
+	label[class*="node_"] {
+
+		svg {
+			background-color: #ffffff;
+		}
+	}
+}
+
+.nodeParent {
+
+	.MuiFormControl-root {
+		width: 100%;
+	}
+}
+
+.selectSearchType {
+	height: 26px;
+	width: 100%;
+
+	select {
+		padding-bottom: 0;
+		padding-top: 0;
+	}
+}
+
+.selectSearchEmpty {
+	height: 26px;
+}
