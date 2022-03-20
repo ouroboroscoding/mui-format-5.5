@@ -780,13 +780,13 @@ export default class Results extends React.PureComponent {
 				if(res.error.code in this.props.errors) {
 					Events.trigger('error', this.props.errors[res.error.code]);
 				} else {
-					Events.trigger('error', JSON.stringify(res.error.msg));
+					Events.trigger('error', res.error);
 				}
 			}
 
 			// If there's a warning
 			if(res.warning) {
-				Events.trigger('warning', JSON.stringify(res.warning));
+				Events.trigger('warning', res.warning);
 			}
 
 			// If there's data

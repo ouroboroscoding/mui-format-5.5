@@ -105,7 +105,7 @@ export default class Form extends React.Component {
 
 				// If there's a warning
 				if(res.warning) {
-					Events.trigger('warning', JSON.stringify(res.warning));
+					Events.trigger('warning', res.warning);
 				}
 
 				// If there's data
@@ -191,7 +191,7 @@ export default class Form extends React.Component {
 		} else if(error.code in this.props.errors) {
 			Events.trigger('error', this.props.errors[error.code]);
 		} else {
-			Events.trigger('error', JSON.stringify(error.msg));
+			Events.trigger('error', error);
 		}
 	}
 
@@ -245,7 +245,7 @@ export default class Form extends React.Component {
 
 				// If there's a warning
 				if(res.warning) {
-					Events.trigger('warning', JSON.stringify(res.warning));
+					Events.trigger('warning', res.warning);
 				}
 
 				// If there's data
