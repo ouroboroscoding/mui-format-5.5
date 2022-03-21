@@ -662,7 +662,7 @@ class NodePassword extends NodeBase {
 		// If the label is a placeholder, add additional props
 		if(this.props.label === 'placeholder') {
 			props.label = this.props.display.title;
-			props.placeHolder = this.props.display.title;
+			props.placeholder = this.props.display.title;
 		}
 
 		// Render

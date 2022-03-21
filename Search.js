@@ -53,6 +53,7 @@ export default class Search extends React.Component {
 		this.parent = null;
 
 		// Bind methods
+		this.clear = this.clear.bind(this);
 		this.query = this.query.bind(this);
 		this.search = this.search.bind(this);
 	}
@@ -73,6 +74,10 @@ export default class Search extends React.Component {
 
 		// Stop traching hash changes
 		Hash.unsubscribe(this.props.hash, this.search);
+	}
+
+	clear() {
+		Hash.set(this.props.hash, null);
 	}
 
 	query() {

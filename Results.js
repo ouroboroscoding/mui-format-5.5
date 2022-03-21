@@ -178,7 +178,9 @@ function ResultsRow(props) {
 		}
 
 		// Let the parent know
-		props.update(ret);
+		if(typeof props.update === 'function') {
+			props.update(ret);
+		}
 
 		// Turn off edit mode
 		updateSet(false);
@@ -848,5 +850,5 @@ Results.defaultProps = {
 	order: "asc",
 	remove: false,
 	totals: false,
-	update: true
+	update: false
 }
