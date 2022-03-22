@@ -111,7 +111,7 @@ export default class Parent extends React.Component {
 					break;
 				case 'Node':
 					lElements.push(
-						<Grid key={i} item xs={12} sm={6} lg={3}>
+						<Grid key={i} item {...this.props.gridSizes}>
 							{Child.create(sClass, {
 								label: this.props.label,
 								ref: el => this.fields[lOrder[i]] = el,
@@ -220,6 +220,13 @@ Child.register('Parent', Parent);
 
 // Valid props
 Parent.propTypes = {
+	gridSizes: PropTypes.shape({
+		xs: PropTypes.number,
+		sm: PropTypes.number,
+		md: PropTypes.number,
+		lg: PropTypes.number,
+		xl: PropTypes.number
+	}),
 	label: PropTypes.oneOf(['above', 'none', 'placeholder']),
 	name: PropTypes.string.isRequired,
 	node: PropTypes.instanceOf(FormatOC.Parent).isRequired,
@@ -233,6 +240,7 @@ Parent.propTypes = {
 
 // Default props
 Parent.defaultProps = {
+	gridSizes: {xs: 12, sm: 6, lg: 3},
 	label: 'placeholder',
 	nodeVariant: 'outlined',
 	onEnter: () => {},

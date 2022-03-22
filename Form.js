@@ -56,8 +56,17 @@ export default class Form extends React.Component {
 		this.parent = null;
 
 		// Bind methods
+		this.cancel = this.cancel.bind(this);
 		this.create = this.create.bind(this);
 		this.update = this.update.bind(this);
+	}
+
+	cancel() {
+
+		// If the prop is a function
+		if(typeof this.props.cancel === 'function') {
+			this.props.cancel();
+		}
 	}
 
 	create() {
@@ -167,6 +176,7 @@ export default class Form extends React.Component {
 					<Typography className="form_title">{title}</Typography>
 				}
 				<Parent
+					gridSizes={this.props.gridSizes}
 					label={this.props.label}
 					ref={el => this.parent = el}
 					name="user"
@@ -177,7 +187,7 @@ export default class Form extends React.Component {
 				/>
 				<Box className="actions">
 					{this.props.cancel &&
-						<Button variant="contained" color="secondary" onClick={this.props.cancel}>Cancel</Button>
+						<Button variant="contained" color="secondary" onClick={this.cancel}>Cancel</Button>
 					}
 					<Button variant="contained" color="primary" onClick={callback}>{submit}</Button>
 				</Box>
@@ -279,8 +289,18 @@ export default class Form extends React.Component {
 // Valid props
 Form.propTypes = {
 	beforeSubmit: PropTypes.func,
-	cancel: PropTypes.func,
+	cancel: PropTypes.oneOfType([
+		PropTypes.bool,
+		PropTypes.func
+	]),
 	errors: PropTypes.object,
+	gridSizes: PropTypes.shape({
+		xs: PropTypes.number,
+		sm: PropTypes.number,
+		md: PropTypes.number,
+		lg: PropTypes.number,
+		xl: PropTypes.number
+	}),
 	label: PropTypes.oneOf(['above', 'none', 'placeholder']),
 	name: PropTypes.string,
 	nodeVariant: PropTypes.oneOf(['filled', 'outlined', 'standard']),
@@ -303,7 +323,9 @@ Form.propTypes = {
 
 // Default props
 Form.defaultProps = {
+	cancel: false,
 	errors: {},
+	gridSizes: {xs: 12, sm: 6, lg: 3},
 	label: 'placeholder',
 	nodeVariant: 'outlined',
 	overrideSubmit: false,
