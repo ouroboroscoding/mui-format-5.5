@@ -916,7 +916,6 @@ class NodeTextArea extends React.Component {
 			onKeyPress: this.keyPressed,
 			multiline: true,
 			onChange: this.change,
-			rows: 3,
 			type: 'text',
 			value: this.state.value === null ? '' : this.state.value,
 			variant: this.props.variant
