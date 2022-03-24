@@ -13,7 +13,7 @@ import Decimal from 'decimal.js';
 import FormatOC from 'format-oc';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
-import { createObjectCsvStringifier } from 'csv-writer';
+import { createObjectCsvStringifier } from 'csv-writer-browser';
 
 // Material UI
 import IconButton from '@mui/material/IconButton';
