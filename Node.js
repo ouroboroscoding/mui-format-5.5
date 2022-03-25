@@ -766,9 +766,11 @@ class NodeSelect extends NodeBase {
 				}
 				<FormControl className={'node_' + this.props.name} error={this.state.error !== false} variant={this.props.variant}>
 					{this.props.label === 'placeholder' &&
-						<InputLabel>{this.props.display.title}</InputLabel>
+						<InputLabel id={this.props.name} >{this.props.display.title}</InputLabel>
 					}
 					<Select
+						label={this.props.display.title}
+						labelId={this.props.name}
 						native
 						onChange={this.change}
 						value={this.state.value}
