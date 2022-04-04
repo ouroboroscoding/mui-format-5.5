@@ -15,47 +15,53 @@ import Rest from 'shared/communication/rest';
 import Events from 'shared/generic/events';
 
 /**
- * Select Data
+ * Select Base
  *
- * Class to allow for dynamic data in selects/dropdowns built from definition
- * data
+ * The base class for dynamic Select types
+ *
+ * @name SelectBase
+ * @access public
  */
-export class SelectData {
+export class SelectBase {
 
 	/**
-	 * Select Data
+	 * Constructor
 	 *
-	 * Creates an instance of the class with default data
+	 * Initialises the base class
 	 *
-	 * @name SelectData
-	 * @access public
-	 * @param String service Name of the service to fetch data from
-	 * @param String noun Noun of the service
-	 * @param String key The key used to make the key/value pairs
-	 * @param String value The value used to make the key/value pairs
-	 * @param Array[] data Default data
-	 * @return SelectData
+	 * @name SelectBase
+	 * @access private
+	 * @returns SelectBase
 	 */
-	constructor(service, noun, key='_id', value='name', data=[]) {
-
-		// Store the service and noune
-		this._service = service;
-		this._noun = noun;
-		this._key = key;
-		this._value = value;
-
-		// Init the data
-		this._data = data;
-		this._fetched = false;
+	constructor() {
 
 		// Init the list of callbacks
 		this._callbacks = [];
 	}
 
 	/**
+	 * Notify
+	 *
+	 * Sends the data to all callbacks
+	 *
+	 * @name notify
+	 * @access public
+	 * @param Array data The data to send to all callbacks
+	 * @returns void
+	 */
+	notify(data) {
+
+		// Go through each callback and notify of the data change
+		for(let f of this._callbacks) {
+			f(data);
+		}
+	}
+
+	/**
 	 * Track
 	 *
-	 * Stores a callback function to be called whenever the data changes
+	 * Stores a callback function to be called whenever the select data needs
+	 * to change
 	 *
 	 * @name track
 	 * @access public
@@ -82,6 +88,161 @@ export class SelectData {
 
 			// Add it to the list
 			this._callbacks.push(callback);
+		}
+	}
+}
+
+/**
+ * Select Hash
+ *
+ * Class to allow for dynamic data based on a hash of key to list of key/value
+ * pairs
+ *
+ * @name SelectHash
+ * @access public
+ * @extends SelectBase
+ */
+export class SelectHash extends SelectBase {
+
+	/**
+	 * SelectHash
+	 *
+	 * Constructor
+	 *
+	 * @name SelectHash
+	 * @access public
+	 * @param Object hash The key to key/value pairs
+	 * @param String initial_key Optional, the initial key to use, defaults to
+	 * 								the first key in the hash
+	 * @returns SelectHash
+	 */
+	constructor(hash, initial_key=null) {
+
+		// Call base class constructor
+		super();
+
+		// Store the hash
+		this._hash = hash;
+		this._key = initial_key;
+
+		// If we have no key
+		if(this._key === null) {
+			this._key = '';
+		}
+	}
+
+	/**
+	 * Key
+	 *
+	 * Sets/Gets the new key
+	 *
+	 * @name key
+	 * @access public
+	 * @param String key Optional, Use to set value, else get
+	 * @returns void
+	 */
+	key(key) {
+
+		// If we got a key
+		if(key !== undefined) {
+
+			// Store the new key
+			this._key = key;
+
+			// Notify
+			this.notify(this._key in this._hash ? this._hash[this._key] : []);
+		}
+
+		// Else, return the current key
+		else {
+			return this._key;
+		}
+	}
+
+	/**
+	 * Track
+	 *
+	 * Stores a callback function to be called whenever the key changes
+	 *
+	 * @name track
+	 * @access public
+	 * @param Function callback The function to call when data changes
+	 * @param bool remove Set to false to remove the callback
+	 * @return void
+	 */
+	track(callback, remove=false) {
+
+		// Call the base class track
+		super.track(callback, remove);
+
+		// If we are not removing the callbacl
+		if(!remove) {
+
+			// Return the current data
+			return this._key in this._hash ? this._hash[this._key] : [];
+		}
+	}
+}
+
+/**
+ * Select Rest
+ *
+ * Class to allow for dynamic data in selects/dropdowns built from rest requests
+ *
+ * @name SelectRest
+ * @access public
+ * @extends SelectBase
+ */
+export class SelectRest extends SelectBase {
+
+	/**
+	 * Select Rest
+	 *
+	 * Creates an instance of the class with default data
+	 *
+	 * @name SelectRest
+	 * @access public
+	 * @param String service Name of the service to fetch data from
+	 * @param String noun Noun of the service
+	 * @param String key The key used to make the key/value pairs
+	 * @param String value The value used to make the key/value pairs
+	 * @param Array[] data Default data
+	 * @return SelectRest
+	 */
+	constructor(service, noun, key='_id', value='name', data=[]) {
+
+		// Call the base class constructor
+		super();
+
+		// Store the service and noun
+		this._service = service;
+		this._noun = noun;
+		this._key = key;
+		this._value = value;
+
+		// Init the data
+		this._data = data;
+		this._fetched = false;
+	}
+
+	/**
+	 * Track
+	 *
+	 * Stores a callback function to be called whenever the data changes
+	 *
+	 * @name track
+	 * @access public
+	 * @param Function callback The function to call when data changes
+	 * @param bool remove Set to false to remove the callback
+	 * @return void
+	 */
+	track(callback, remove=false) {
+
+		// Call the base class track
+		super.track(callback, remove);
+
+		// If we are not removing the callbacl
+		if(!remove) {
 
 			// If we don't have the data yet
 			if(!this._fetched) {
@@ -102,7 +263,7 @@ export class SelectData {
 	 *
 	 * @name _fetch
 	 * @access private
-	 * @return {[type]} [description]
+	 * @return void
 	 */
 	_fetch() {
 
@@ -126,10 +287,8 @@ export class SelectData {
 					this._data.push([o[this._key], o[this._value]]);
 				}
 
-				// Go through each callback and notify of the data change
-				for(let f of this._callbacks) {
-					f(this._data);
-				}
+				// Notify the trackers
+				this.notify(this.data);
 			}
 		})
 	}
@@ -137,6 +296,8 @@ export class SelectData {
 
 // Default export
 const Shared = {
-	SelectData: SelectData
+	SelectBase: SelectBase,
+	SelectHash: SelectHash,
+	SelectRest: SelectRest
 };
 export default Shared;

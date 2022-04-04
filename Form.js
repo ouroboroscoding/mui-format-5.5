@@ -176,6 +176,7 @@ export default class Form extends React.Component {
 					<Typography className="form_title">{title}</Typography>
 				}
 				<Parent
+					dynamicOptions={this.props.dynamicOptions}
 					gridSizes={this.props.gridSizes}
 					label={this.props.label}
 					ref={el => this.parent = el}
@@ -293,8 +294,13 @@ Form.propTypes = {
 		PropTypes.bool,
 		PropTypes.func
 	]),
+	dynamicOptions: PropTypes.arrayOf(PropTypes.exact({
+		node: PropTypes.string.isRequired,
+		trigger: PropTypes.string.isRequired,
+		options: PropTypes.object.isRequired
+	})),
 	errors: PropTypes.object,
-	gridSizes: PropTypes.shape({
+	gridSizes: PropTypes.exact({
 		xs: PropTypes.number,
 		sm: PropTypes.number,
 		md: PropTypes.number,

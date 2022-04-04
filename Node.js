@@ -32,7 +32,7 @@ import Typography from '@mui/material/Typography';
 
 // Format modules
 import Child from './Child';
-import { SelectData } from './Shared';
+import { SelectBase } from './Shared';
 
 // Generic modules
 import { isObject, ucfirst } from 'shared/generic/tools';
@@ -148,13 +148,13 @@ class NodeBase extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			"error": false,
-			"value": props.value
+			error: false,
+			value: props.value
 		}
 		this.keyPressed = this.keyPressed.bind(this);
 	}
 	error(msg) {
-		this.setState({"error": msg});
+		this.setState({error: msg});
 	}
 	keyPressed(event) {
 		if(event.key === 'Enter' && this.props.onEnter) {
@@ -165,7 +165,7 @@ class NodeBase extends React.Component {
 		return this.state.value === '' ? null : this.state.value;
 	}
 	set value(val) {
-		this.setState({"value": val});
+		this.setState({value: val});
 	}
 }
 
@@ -174,6 +174,7 @@ NodeBase.propTypes = {
 	display: PropTypes.object.isRequired,
 	name: PropTypes.string.isRequired,
 	node: PropTypes.instanceOf(FNode).isRequired,
+	onChange: PropTypes.func,
 	onEnter: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
 	value: PropTypes.any
 }
@@ -195,9 +196,14 @@ class NodeBool extends NodeBase {
 	change(event) {
 		// Impossible for this to be invalid, so just store it
 		this.setState({
-			"error": false,
-			"value": event.target.checked
+			error: false,
+			value: event.target.checked
 		});
+
+		// If there's a callback
+		if(this.props.onChange) {
+			this.props.onChange(event.target.checked);
+		}
 	}
 
 	render() {
@@ -241,9 +247,14 @@ class NodeDate extends NodeBase {
 
 		// Update the state
 		this.setState({
-			"error": error,
-			"value": event.target.value
+			error: error,
+			value: event.target.value
 		});
+
+		// If there's a callback
+		if(this.props.onChange) {
+			this.props.onChange(event.target.value);
+		}
 	}
 
 	render() {
@@ -308,9 +319,14 @@ class NodeDatetime extends NodeBase {
 
 		// Update the state
 		this.setState({
-			"error": error,
-			"value": newDatetime
+			error: error,
+			value: newDatetime
 		});
+
+		// If there's a callback
+		if(this.props.onChange) {
+			this.props.onChange(newDatetime);
+		}
 	}
 
 	render() {
@@ -393,8 +409,8 @@ class NodeMultiSelectCSV extends NodeBase {
 		// If we got data
 		if(lDisplayOptions) {
 
-			// If the options are a dynamic SelectData
-			if(lDisplayOptions instanceof SelectData) {
+			// If the options are a dynamic SelectBase
+			if(lDisplayOptions instanceof SelectBase) {
 				this.callback = this.dynamicData.bind(this);
 
 				// Get default data and add callback
@@ -464,6 +480,11 @@ class NodeMultiSelectCSV extends NodeBase {
 			error: error,
 			value: sValue
 		});
+
+		// If there's a callback
+		if(this.props.onChange) {
+			this.props.onChange(sValue);
+		}
 	}
 
 	render() {
@@ -534,6 +555,10 @@ class NodeMultiSelectCSV extends NodeBase {
 			</React.Fragment>
 		);
 	}
+
+	set options(data) {
+		this.setState({options: data});
+	}
 }
 
 
@@ -562,9 +587,14 @@ class NodeNumber extends NodeBase {
 
 		// Update the state
 		this.setState({
-			"error": error,
-			"value": event.target.value
+			error: error,
+			value: event.target.value
 		});
+
+		// If there's a callback
+		if(this.props.onChange) {
+			this.props.onChange(event.target.value);
+		}
 	}
 
 	render() {
@@ -640,9 +670,14 @@ class NodePassword extends NodeBase {
 
 		// Update the state
 		this.setState({
-			"error": error,
-			"value": event.target.value
+			error: error,
+			value: event.target.value
 		});
+
+		// If there's a callback
+		if(this.props.onChange) {
+			this.props.onChange(event.target.value);
+		}
 	}
 
 	render() {
@@ -697,8 +732,8 @@ class NodeSelect extends NodeBase {
 		// If we got data
 		if(lDisplayOptions) {
 
-			// If the options are a dynamic SelectData
-			if(lDisplayOptions instanceof SelectData) {
+			// If the options are a dynamic SelectBase
+			if(lDisplayOptions instanceof SelectBase) {
 				this.callback = this.dynamicData.bind(this);
 
 				// Get default data and add callback
@@ -730,7 +765,17 @@ class NodeSelect extends NodeBase {
 	}
 
 	dynamicData(data) {
-		this.setState({options: data});
+
+		// Init the new state
+		let oState = {options: data};
+
+		// If the current value doesn't match the list
+		if(data.indexOf(this.state.value) === -1) {
+			oState.value = '';
+		}
+
+		// Set the new state
+		this.setState(oState);
 	}
 
 	change(event) {
@@ -744,9 +789,14 @@ class NodeSelect extends NodeBase {
 
 		// Update the state
 		this.setState({
-			"error": error,
-			"value": event.target.value
+			error: error,
+			value: event.target.value
 		});
+
+		// If there's a callback
+		if(this.props.onChange) {
+			this.props.onChange(event.target.value);
+		}
 	}
 
 	render() {
@@ -784,6 +834,10 @@ class NodeSelect extends NodeBase {
 			</React.Fragment>
 		);
 	}
+
+	set options(data) {
+		this.setState({options: data});
+	}
 }
 
 /**
@@ -817,9 +871,14 @@ class NodeText extends NodeBase {
 
 		// Update the state
 		this.setState({
-			"error": error,
-			"value": event.target.value
+			error: error,
+			value: event.target.value
 		});
+
+		// If there's a callback
+		if(this.props.onChange) {
+			this.props.onChange(event.target.value);
+		}
 	}
 
 	render() {
@@ -872,7 +931,7 @@ class NodeText extends NodeBase {
  *
  * Handles values that are strings or string-like over multiple lines
  *
- * @extends NodeBase
+ * @extends React.Component
  */
 class NodeTextArea extends React.Component {
 
@@ -880,8 +939,8 @@ class NodeTextArea extends React.Component {
 		super(props);
 
 		this.state = {
-			"error": false,
-			"value": props.value
+			error: false,
+			value: props.value
 		}
 
 		// If there's a regex, override the node
@@ -903,9 +962,14 @@ class NodeTextArea extends React.Component {
 
 		// Update the state
 		this.setState({
-			"error": error,
-			"value": event.target.value
+			error: error,
+			value: event.target.value
 		});
+
+		// If there's a callback
+		if(this.props.onChange) {
+			this.props.onChange(event.target.value);
+		}
 	}
 
 	render() {
@@ -985,9 +1049,14 @@ class NodeTime extends NodeBase {
 
 		// Update the state
 		this.setState({
-			"error": error,
-			"value": newTime
+			error: error,
+			value: newTime
 		});
+
+		// If there's a callback
+		if(this.props.onChange) {
+			this.props.onChange(newTime);
+		}
 	}
 
 	render() {
@@ -1044,11 +1113,11 @@ export default class Node extends React.Component {
 
 		// Init state
 		this.state = {
-			"display": oReact,
-			"type": 'type' in oReact ?
+			display: oReact,
+			type: 'type' in oReact ?
 						oReact.type :
 						this.defaultType(props.node),
-			"value": props.value !== null ? props.value : oReact.default
+			value: props.value !== null ? props.value : oReact.default
 		}
 
 		// Child elements
@@ -1134,8 +1203,10 @@ export default class Node extends React.Component {
 		return (
 			<React.Fragment>
 				<ElName
+					customRender={this.props.customRender}
 					display={this.state.display}
 					label={this.props.label}
+					onChange={this.props.onChange}
 					onEnter={this.props.onEnter || false}
 					name={this.props.name}
 					node={this.props.node}
@@ -1156,6 +1227,7 @@ export default class Node extends React.Component {
 	}
 
 	get value() {
+
 		// Get the value of the element
 		let mValue = this.el.value;
 
@@ -1212,9 +1284,11 @@ Child.register('Node', Node);
 
 // Force props
 Node.propTypes = {
+	customRender: PropTypes.func,
 	label: PropTypes.oneOf(['above', 'none', 'placeholder']),
 	name: PropTypes.string.isRequired,
 	node: PropTypes.instanceOf(FNode).isRequired,
+	onChange: PropTypes.func,
 	onEnter: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
 	type: PropTypes.oneOf(['create', 'search', 'update']).isRequired,
 	value: PropTypes.any,

@@ -19,11 +19,20 @@ import Typography from '@mui/material/Typography';
 
 // Components
 import Child from './Child';
+import { SelectHash } from './Shared';
 
 // Generic modules
 import Events from 'shared/generic/events';
 
-// Parent Component
+/**
+ * Parent
+ *
+ * Creates a grid of Nodes using the FormatOC Parent structure
+ *
+ * @name Parent
+ * @access public
+ * @extends React.Component
+ */
 export default class Parent extends React.Component {
 
 	constructor(props) {
@@ -74,6 +83,44 @@ export default class Parent extends React.Component {
 			lOrder = this.props.node.keys();
 		}
 
+		// If we have any dynamic options
+		let oDynamicOptions = null;
+		if(this.props.dynamicOptions && this.props.dynamicOptions.length) {
+
+			// Set the var to an object
+			oDynamicOptions = {};
+
+			// Go through each one
+			for(let o of this.props.dynamicOptions) {
+
+				// If the node doesn't exist
+				if(!this.props.node.get(o.node)) {
+					throw new Error(`Node "${o.node}" used as a node in "dynamicOptions" attribute does not exist in the Parent`);
+				}
+
+				// If the trigger doesn't exist
+				if(!this.props.node.get(o.trigger)) {
+					throw new Error(`Node "${o.trigger}" used as a trigger in "dynamicOptions" attribute does not exist in the Parent`);
+				}
+
+				// Get the react section of the node
+				let oReact = this.props.node.get(o.node).special('react') || {};
+
+				// Create a SelectHash using the options and the current value
+				//	of the node, and store it under the node's options
+				oReact.options = new SelectHash(
+					o.options,
+					this.props.value[o.trigger] || null
+				);
+
+				// Overwrite the react special
+				this.props.node.get(o.node).special('react', oReact);
+
+				// Store the callback for the trigger
+				oDynamicOptions[o.trigger] = oReact.options.key.bind(oReact.options);
+			}
+		}
+
 		// Go through each node
 		for(let i in lOrder) {
 
@@ -110,19 +157,27 @@ export default class Parent extends React.Component {
 					);
 					break;
 				case 'Node':
+					let oProps = {
+						label: this.props.label,
+						ref: el => this.fields[lOrder[i]] = el,
+						name: lOrder[i],
+						node: oChild,
+						onEnter: this.props.onEnter,
+						type: this.props.type,
+						value: mValue,
+						validation: this.props.validation,
+						variant: this.props.nodeVariant
+					}
+
+					// If we have a trigger
+					if(oDynamicOptions && lOrder[i] in oDynamicOptions) {
+						oProps.onChange = oDynamicOptions[lOrder[i]];
+					}
+
+					// Create the new element and push it to the list
 					lElements.push(
 						<Grid key={i} item {...this.props.gridSizes}>
-							{Child.create(sClass, {
-								label: this.props.label,
-								ref: el => this.fields[lOrder[i]] = el,
-								name: lOrder[i],
-								node: oChild,
-								onEnter: this.props.onEnter,
-								type: this.props.type,
-								value: mValue,
-								validation: this.props.validation,
-								variant: this.props.nodeVariant
-							})}
+							{Child.create(sClass, oProps)}
 						</Grid>
 					);
 					break;
@@ -133,9 +188,9 @@ export default class Parent extends React.Component {
 
 		// Return the list of elements we generated
 		return {
-			"elements": lElements,
-			"order": lOrder,
-			"title": oReact.title || false
+			elements: lElements,
+			order: lOrder,
+			title: oReact.title || false
 		};
 	}
 
@@ -220,7 +275,12 @@ Child.register('Parent', Parent);
 
 // Valid props
 Parent.propTypes = {
-	gridSizes: PropTypes.shape({
+	dynamicOptions: PropTypes.arrayOf(PropTypes.exact({
+		node: PropTypes.string.isRequired,
+		trigger: PropTypes.string.isRequired,
+		options: PropTypes.object.isRequired
+	})),
+	gridSizes: PropTypes.exact({
 		xs: PropTypes.number,
 		sm: PropTypes.number,
 		md: PropTypes.number,
@@ -240,6 +300,7 @@ Parent.propTypes = {
 
 // Default props
 Parent.defaultProps = {
+	dynamicOptions: [],
 	gridSizes: {xs: 12, sm: 6, lg: 3},
 	label: 'placeholder',
 	nodeVariant: 'outlined',

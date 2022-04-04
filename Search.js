@@ -138,6 +138,7 @@ export default class Search extends React.Component {
 		return (
 			<Box className={"search _" + this.state.name}>
 				<Parent
+					dynamicOptions={this.props.dynamicOptions}
 					label={this.props.label}
 					ref={el => this.parent = el}
 					name={this.props.name}
@@ -156,6 +157,11 @@ export default class Search extends React.Component {
 
 // Valid props
 Search.propTypes = {
+	dynamicOptions: PropTypes.arrayOf(PropTypes.exact({
+		node: PropTypes.string.isRequired,
+		trigger: PropTypes.string.isRequired,
+		options: PropTypes.object.isRequired
+	})),
 	hash: PropTypes.string.isRequired,
 	label: PropTypes.oneOf(['above', 'none', 'placeholder']),
 	name: PropTypes.string.isRequired,
