@@ -32,7 +32,7 @@ import Tooltip from '@mui/material/Tooltip';
 import FormComponent from './Form';
 
 // Format modules
-import { SelectRest } from './Shared';
+import { SelectBase } from './Shared';
 
 // Communications
 import Rest from 'shared/communication/rest';
@@ -461,8 +461,8 @@ export default class Results extends React.PureComponent {
 			// If there's options
 			if(oNode.options) {
 
-				// If the options are a dynamic SelectRest
-				if(oNode.options instanceof SelectRest) {
+				// If the options are a dynamic SelectBase
+				if(oNode.options instanceof SelectBase) {
 					oOptions[k] = true;
 					this.dynCallbacks[k] = {
 						sd: oNode.options,
