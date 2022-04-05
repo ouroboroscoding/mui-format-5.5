@@ -153,6 +153,11 @@ class NodeBase extends React.Component {
 		}
 		this.keyPressed = this.keyPressed.bind(this);
 	}
+	componentDidUpdate(prevProps) {
+		if(prevProps.error !== this.props.error) {
+			this.setState({error: this.props.error});
+		}
+	}
 	error(msg) {
 		this.setState({error: msg});
 	}
@@ -172,6 +177,7 @@ class NodeBase extends React.Component {
 // Force props
 NodeBase.propTypes = {
 	display: PropTypes.object.isRequired,
+	error: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
 	name: PropTypes.string.isRequired,
 	node: PropTypes.instanceOf(FNode).isRequired,
 	onChange: PropTypes.func,
@@ -1203,8 +1209,8 @@ export default class Node extends React.Component {
 		return (
 			<React.Fragment>
 				<ElName
-					customRender={this.props.customRender}
 					display={this.state.display}
+					error={this.props.error}
 					label={this.props.label}
 					onChange={this.props.onChange}
 					onEnter={this.props.onEnter || false}
@@ -1284,7 +1290,7 @@ Child.register('Node', Node);
 
 // Force props
 Node.propTypes = {
-	customRender: PropTypes.func,
+	error: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
 	label: PropTypes.oneOf(['above', 'none', 'placeholder']),
 	name: PropTypes.string.isRequired,
 	node: PropTypes.instanceOf(FNode).isRequired,
@@ -1298,6 +1304,7 @@ Node.propTypes = {
 
 // Default props
 Node.defaultProps = {
+	error: false,
 	label: 'placeholder',
 	onEnter: false,
 	value: null,
