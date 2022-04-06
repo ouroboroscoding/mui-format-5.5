@@ -30,6 +30,9 @@ import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
+// React Phone Input
+import PhoneInput from 'react-phone-input-material-ui'
+
 // Format modules
 import Child from './Child';
 import { SelectBase } from './Shared';
@@ -719,6 +722,66 @@ class NodePassword extends NodeBase {
 }
 
 /**
+ * Node Phone Number
+ *
+ * Handles values that are phone numbers
+ *
+ * @extends NodeBase
+ */
+class NodePhoneNumber extends NodeBase {
+
+	constructor(props) {
+		super(props);
+		this.change = this.change.bind(this);
+	}
+
+	change(value) {
+
+		// Check the new value is valid
+		let error = false;
+		if(this.props.validation && !this.props.node.valid(value)) {
+			error = 'Invalid Value';
+		}
+
+		// Update the state
+		this.setState({
+			error: error,
+			value: value
+		});
+
+		// If there's a callback
+		if(this.props.onChange) {
+			this.props.onChange(value);
+		}
+	}
+
+	render() {
+
+		// Render
+		return (
+			<React.Fragment>
+				{this.props.label === 'above' &&
+					<Typography>{this.props.display.title}</Typography>
+				}
+				<FormControl className={'node_' + this.props.name} error={this.state.error !== false}>
+					<PhoneInput
+						component={TextField}
+						label={this.props.display.title}
+						onChange={this.change}
+						onKeyPress={this.keyPressed}
+						value={this.state.value}
+						variant={this.props.variant}
+					/>
+					{this.state.error &&
+						<FormHelperText>{this.state.error}</FormHelperText>
+					}
+				</FormControl>
+			</React.Fragment>
+		);
+	}
+}
+
+/**
  * Node Select
  *
  * Handles values that have specific options
@@ -1193,6 +1256,7 @@ export default class Node extends React.Component {
 			case 'multiselectcsv': ElName = NodeMultiSelectCSV; break;
 			case 'number': ElName = NodeNumber; break;
 			case 'password': ElName = NodePassword; break;
+			case 'phone_number': ElName = NodePhoneNumber; break;
 			case 'select': ElName = NodeSelect; break;
 			case 'text': ElName = NodeText; break;
 			case 'textarea': ElName = NodeTextArea; break;
