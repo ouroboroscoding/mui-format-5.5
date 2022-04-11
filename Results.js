@@ -277,7 +277,7 @@ function ResultsRow(props) {
 				// If there's a url
 				if(a.url) {
 					return (
-						<Link to={a.url}>
+						<Link key={i} to={a.url}>
 							<Tooltip key={i} title={a.tooltip}>
 								<IconButton data-index={i} className="icon">
 									<i className={a.icon + ' ' + (actions[i.toString()] ? 'open' : 'closed')} />
