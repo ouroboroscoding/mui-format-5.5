@@ -46,7 +46,7 @@ export default class Search extends React.Component {
 
 		// Set the initial state
 		this.state = {
-			"name": props.tree._name
+			name: props.tree._name
 		}
 
 		// Init the parent
@@ -77,7 +77,7 @@ export default class Search extends React.Component {
 	}
 
 	clear() {
-		Hash.set(this.props.hash, null);
+		Hash.set(this.props.hash);
 	}
 
 	query() {
@@ -85,8 +85,12 @@ export default class Search extends React.Component {
 		// Fetch the values from the parent
 		let oValues = this.parent.value;
 
-		// Turn them into JSON and store them in the hash
-		Hash.set(this.props.hash, JSON.stringify(oValues));
+		// If there's anything
+		if(!empty(oValues)) {
+
+			// Turn them into JSON and store them in the hash
+			Hash.set(this.props.hash, JSON.stringify(oValues));
+		}
 	}
 
 	search(values) {

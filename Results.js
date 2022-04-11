@@ -9,11 +9,12 @@
  */
 
 // NPM modules
+import { createObjectCsvStringifier } from 'csv-writer-browser';
 import Decimal from 'decimal.js';
 import FormatOC from 'format-oc';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
-import { createObjectCsvStringifier } from 'csv-writer-browser';
+import { Link } from 'react-router-dom';
 
 // Material UI
 import IconButton from '@mui/material/IconButton';
@@ -270,15 +271,32 @@ function ResultsRow(props) {
 		<TableCell key={-1} className="actions" align="right">
 			{props.actions.map((a, i) => {
 				if(a.dynamic && typeof a.dynamic === 'function') {
-					a = a.dynamic(props.data);
+					a = Object.assign(a, a.dynamic(props.data));
 				}
-				return (
-					<Tooltip key={i} title={a.tooltip}>
-						<IconButton data-index={i} className="icon" onClick={ev => action(ev.currentTarget.dataset.index)}>
-							<i className={a.icon + ' ' + (actions[i.toString()] ? 'open' : 'closed')} />
-						</IconButton>
-					</Tooltip>
-				);
+
+				// If there's a url
+				if(a.url) {
+					return (
+						<Link to={a.url}>
+							<Tooltip key={i} title={a.tooltip}>
+								<IconButton data-index={i} className="icon">
+									<i className={a.icon + ' ' + (actions[i.toString()] ? 'open' : 'closed')} />
+								</IconButton>
+							</Tooltip>
+						</Link>
+					);
+				}
+
+				// Else, there should be a callback or component
+				else {
+					return (
+						<Tooltip key={i} title={a.tooltip}>
+							<IconButton data-index={i} className="icon" onClick={ev => action(ev.currentTarget.dataset.index)}>
+								<i className={a.icon + ' ' + (actions[i.toString()] ? 'open' : 'closed')} />
+							</IconButton>
+						</Tooltip>
+					);
+				}
 			})}
 			{props.update &&
 				<Tooltip title="Edit the record">
