@@ -143,6 +143,7 @@ export default class Search extends React.Component {
 			<Box className={"search _" + this.state.name}>
 				<Parent
 					dynamicOptions={this.props.dynamicOptions}
+					gridSizes={this.props.gridSizes}
 					label={this.props.label}
 					ref={el => this.parent = el}
 					name={this.props.name}
@@ -166,6 +167,15 @@ Search.propTypes = {
 		trigger: PropTypes.string.isRequired,
 		options: PropTypes.object.isRequired
 	})),
+	gridSizes: PropTypes.objectOf(
+		PropTypes.exact({
+			xs: PropTypes.number,
+			sm: PropTypes.number,
+			md: PropTypes.number,
+			lg: PropTypes.number,
+			xl: PropTypes.number
+		})
+	),
 	hash: PropTypes.string.isRequired,
 	label: PropTypes.oneOf(['above', 'none', 'placeholder']),
 	name: PropTypes.string.isRequired,
@@ -177,5 +187,6 @@ Search.propTypes = {
 
 // Default props
 Search.defaultProps = {
+	gridSizes: {__default__: {xs: 12, sm: 6, lg: 3}},
 	label: 'placeholder'
 }
