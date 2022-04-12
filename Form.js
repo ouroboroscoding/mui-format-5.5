@@ -300,13 +300,16 @@ Form.propTypes = {
 		options: PropTypes.object.isRequired
 	})),
 	errors: PropTypes.object,
-	gridSizes: PropTypes.exact({
-		xs: PropTypes.number,
-		sm: PropTypes.number,
-		md: PropTypes.number,
-		lg: PropTypes.number,
-		xl: PropTypes.number
-	}),
+	gridSizes: PropTypes.objectOf(
+		PropTypes.exact({
+			xs: PropTypes.number,
+			sm: PropTypes.number,
+			md: PropTypes.number,
+			lg: PropTypes.number,
+			xl: PropTypes.number
+		})
+	),
+	gridSpacing: PropTypes.number,
 	label: PropTypes.oneOf(['above', 'none', 'placeholder']),
 	name: PropTypes.string,
 	nodeVariant: PropTypes.oneOf(['filled', 'outlined', 'standard']),
@@ -331,7 +334,8 @@ Form.propTypes = {
 Form.defaultProps = {
 	cancel: false,
 	errors: {},
-	gridSizes: {xs: 12, sm: 6, lg: 3},
+	gridSizes: {__default__: {xs: 12, sm: 6, lg: 3}},
+	gridSpacing: 2,
 	label: 'placeholder',
 	nodeVariant: 'outlined',
 	overrideSubmit: false,

@@ -174,9 +174,14 @@ export default class Parent extends React.Component {
 						oProps.onChange = oDynamicOptions[lOrder[i]];
 					}
 
+					// Grid sizes
+					let gridSizes = this.props.gridSizes[lOrder[i]] ||
+									this.props.gridSizes.__default__ ||
+									{xs: 12}
+
 					// Create the new element and push it to the list
 					lElements.push(
-						<Grid key={i} item {...this.props.gridSizes}>
+						<Grid key={i} item {...gridSizes}>
 							{Child.create(sClass, oProps)}
 						</Grid>
 					);
@@ -200,7 +205,7 @@ export default class Parent extends React.Component {
 				{this.state.title &&
 					<Typography variant="h6">{this.state.title}</Typography>
 				}
-				<Grid container spacing={2} className={"nodeParent _" + this.props.name}>
+				<Grid container spacing={this.props.gridSpacing} className={"nodeParent _" + this.props.name}>
 					{this.state.elements}
 				</Grid>
 			</React.Fragment>
@@ -280,13 +285,16 @@ Parent.propTypes = {
 		trigger: PropTypes.string.isRequired,
 		options: PropTypes.object.isRequired
 	})),
-	gridSizes: PropTypes.exact({
-		xs: PropTypes.number,
-		sm: PropTypes.number,
-		md: PropTypes.number,
-		lg: PropTypes.number,
-		xl: PropTypes.number
-	}),
+	gridSizes: PropTypes.objectOf(
+		PropTypes.exact({
+			xs: PropTypes.number,
+			sm: PropTypes.number,
+			md: PropTypes.number,
+			lg: PropTypes.number,
+			xl: PropTypes.number
+		})
+	),
+	gridSpacing: PropTypes.number,
 	label: PropTypes.oneOf(['above', 'none', 'placeholder']),
 	name: PropTypes.string.isRequired,
 	node: PropTypes.instanceOf(FormatOC.Parent).isRequired,
@@ -301,7 +309,8 @@ Parent.propTypes = {
 // Default props
 Parent.defaultProps = {
 	dynamicOptions: [],
-	gridSizes: {xs: 12, sm: 6, lg: 3},
+	gridSizes: {__default__: {xs: 12, sm: 6, lg: 3}},
+	gridSpacing: 2,
 	label: 'placeholder',
 	nodeVariant: 'outlined',
 	onEnter: () => {},
