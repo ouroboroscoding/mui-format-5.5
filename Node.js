@@ -41,113 +41,245 @@ import { SelectBase } from './Shared';
 import { isObject, ucfirst } from 'shared/generic/tools';
 
 /**
- * Search Options
+ * Node
  *
- * Displays options for how to search the field based on the type
+ * Wrapper for all the different types of simple data
  *
+ * @name Node
+ * @access public
  * @extends React.Component
  */
-class SearchOption extends React.Component {
+export class Node extends React.Component {
 
-	// Constructor
 	constructor(props) {
 
-		// Call the parent
+		// Call parent
 		super(props);
 
-		// Init the type
-		let lOpts = null;
+		// Get the react display properties
+		let oReact = props.node.special('react') || {}
 
-		// Figure out the type of options based on the Node's type
-		switch(props.type) {
-			case 'hidden':
-			case 'select':
-			case 'multiselectcsv':
-				break;
+		// If the title is not set
+		if(!('title' in oReact)) {
+			oReact.title = ucfirst(props.name);
+		}
 
-			case 'text':
-			case 'textarea':
-				lOpts = [
-					<option key="exact" value="exact">Exact</option>,
-					<option key="value" value="start">Starts with</option>,
-					<option key="end" value="end">Ends with</option>,
-					<option key="asterisk" value="asterisk">Uses *</option>
-				];
-				break;
-
-			default:
-				lOpts = [
-					<option key="exact" value="exact">Exact</option>,
-					<option key="greater" value="greater">Greater than (inclusive)</option>,
-					<option key="less" value="less">Less than (inclusive)</option>
-				];
-				break;
+		// If there's no default
+		if(!('default' in oReact)) {
+			oReact.default = null;
 		}
 
 		// Init state
 		this.state = {
-			options: lOpts,
-			value: lOpts ? 'exact': null
-		};
+			display: oReact,
+			type: 'type' in oReact ?
+						oReact.type :
+						this.defaultType(props.node),
+			value: props.value !== null ? props.value : oReact.default
+		}
 
-		// Refs
-		this.select = null;
-
-		// Bind methods
-		this.change = this.change.bind(this);
+		// Child elements
+		this.el = null;
+		this.search = null;
 	}
 
-	change(ev) {
-		this.setState({value: ev.target.value});
+	error(msg) {
+		this.el.error(msg);
 	}
 
-	// Render
+	// Figure out the element type based on the default values of the node
+	defaultType(node) {
+
+		// If it has options, it's a select, no question
+		if(node.options()) {
+			return 'select';
+		}
+
+		// Get the node type
+		let sType = node.type();
+
+		// Figure it out by type
+		switch(sType) {
+
+			// If it's a string type at its core
+			case 'any':
+			case 'base64':
+			case 'ip':
+			case 'json':
+			case 'md5':
+			case 'string':
+			case 'uuid':
+			case 'uuid4':
+				return 'text';
+
+			// If it's a number
+			case 'decimal':
+			case 'float':
+			case 'int':
+			case 'price':
+			case 'timestamp':
+			case 'uint':
+				return 'number';
+
+			// Else it's its own type
+			case 'bool':
+			case 'date':
+			case 'datetime':
+			case 'time':
+				return sType;
+
+			default:
+				throw new Error('invalid type in format/Node: ' + sType);
+		}
+	}
+
 	render() {
-		if(this.state.options) {
-			return (
-				<Select
-					className="selectSearchType"
-					inputRef={el => this.select = el}
-					native
-					onChange={this.change}
+
+		// Get the component name based on the type
+		let ElName = null;
+		if(this.state.type in Node._registered) {
+			ElName = Node._registered[this.state.type];
+		} else {
+			throw new Error('invalid type in format/Node: ' + this.state.type);
+		}
+
+		// Get the value
+		let mValue = this.state.value !== null ?
+						this.state.value :
+						'';
+
+		return (
+			<React.Fragment>
+				<ElName
+					display={this.state.display}
+					error={this.props.error}
+					label={this.props.label}
+					onChange={this.props.onChange}
+					onEnter={this.props.onEnter || false}
+					name={this.props.name}
+					node={this.props.node}
+					ref={el => this.el = el}
+					value={mValue}
+					validation={this.props.validation}
 					variant={this.props.variant}
-					value={this.state.value}
-				>
-					{this.state.options}
-				</Select>
-			);
-		} else {
-			return(
-				<div className="selectSearchEmpty">&nbsp;</div>
-			);
-		}
+				/>
+				{this.props.type === 'search' &&
+					<SearchOption
+						ref={el => this.search = el}
+						type={this.state.type}
+						variant={this.props.variant}
+					/>
+				}
+			</React.Fragment>
+		);
 	}
 
-	// Return the value of the select
 	get value() {
-		if(!this.state.options) {
-			return 'exact';
-		} else {
-			return this.select.value;
+
+		// Get the value of the element
+		let mValue = this.el.value;
+
+		// If the value is null
+		if(mValue === null) {
+			return null;
+		}
+
+		// If we're not in search mode, return the value as is
+		if(this.props.type !== 'search') {
+			return mValue;
+		}
+
+		// Get the value of the search select
+		let sSearch = this.search.value;
+
+		// If it's null or exact, return the value as is
+		if(sSearch === null || sSearch === 'exact') {
+			return mValue;
+		}
+
+		// Else, generate an object describing the search
+		else {
+			return {
+				type: sSearch,
+				value: this.el.value
+			}
 		}
 	}
 
-	// Set the dropdown
 	set value(val) {
-		if(this.state.options) {
-			this.setState({value: val});
+
+		// If we're not in search mode, set the value as is
+		if(this.props.type !== 'search') {
+			this.el.value = val;
+			return;
 		}
+
+		// If we didn't get an object, assume exact
+		if(!isObject(val)) {
+			this.el.value = val;
+			this.search.value = 'exact';
+			return;
+		}
+
+		// Set the value and search dropdown
+		this.el.value = val.value;
+		this.search.value = val.type;
 	}
 }
 
 /**
- * Node Base
+ * Register
+ *
+ * Static method for registering node types
+ *
+ * @name register
+ * @access public
+ * @param String type The type, or name, of the element to register
+ * @param Class class_ The actual class to register under the type
+ * @returns void
+ */
+Node._registered = {};
+Node.register = (type, class_) => {
+	Node._registered[type] = class_;
+}
+
+// Register the component with the Child generator
+Child.register('Node', Node);
+
+// Valid props
+Node.propTypes = {
+	error: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
+	label: PropTypes.oneOf(['above', 'none', 'placeholder']),
+	name: PropTypes.string.isRequired,
+	node: PropTypes.instanceOf(FNode).isRequired,
+	onChange: PropTypes.func,
+	onEnter: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
+	type: PropTypes.oneOf(['create', 'search', 'update']).isRequired,
+	value: PropTypes.any,
+	validation: PropTypes.bool,
+	variant: PropTypes.oneOf(['filled', 'outlined', 'standard'])
+}
+
+// Default props
+Node.defaultProps = {
+	error: false,
+	label: 'placeholder',
+	onEnter: false,
+	value: null,
+	validation: true,
+	variant: 'outlined'
+}
+
+/**
+ * NodeBase
  *
  * Base class for all node types
  *
+ * @name NodeBase
+ * @access private
  * @extends React.Component
  */
-class NodeBase extends React.Component {
+export class NodeBase extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -195,7 +327,7 @@ NodeBase.propTypes = {
  *
  * @extends React.Component
  */
-class NodeBool extends NodeBase {
+export class NodeBool extends NodeBase {
 
 	constructor(props) {
 		super(props);
@@ -232,14 +364,19 @@ class NodeBool extends NodeBase {
 	}
 }
 
+// Register with Node
+Node.register('bool', NodeBool);
+
 /**
  * Node Date
  *
  * Handles values that represent a date
  *
+ * @name NodeDate
+ * @access public
  * @extends NodeBase
  */
-class NodeDate extends NodeBase {
+export class NodeDate extends NodeBase {
 
 	constructor(props) {
 		super(props);
@@ -298,14 +435,19 @@ class NodeDate extends NodeBase {
 	}
 }
 
+// Register with Node
+Node.register('data', NodeDate);
+
 /**
  * Node Datetime
  *
  * Handles values that represent a date with a time
  *
+ * @name NodeDatetime
+ * @access public
  * @extends NodeBase
  */
-class NodeDatetime extends NodeBase {
+export class NodeDatetime extends NodeBase {
 
 	constructor(props) {
 		super(props);
@@ -370,14 +512,19 @@ class NodeDatetime extends NodeBase {
 	}
 }
 
+// Register with Node
+Node.register('datetime', NodeDatetime);
+
 /**
  * Node Hidden
  *
  * Handles values that aren't visible
  *
+ * @name NodeHidden
+ * @access public
  * @extends NodeBase
  */
-class NodeHidden extends NodeBase {
+export class NodeHidden extends NodeBase {
 
 	render() {
 		let props = {}
@@ -398,14 +545,19 @@ class NodeHidden extends NodeBase {
 	}
 }
 
+// Register with Node
+Node.register('hidden', NodeHidden);
+
 /**
  * Node Multi Select CSV
  *
  * Handles values that are actually a list of comma seperated values
  *
+ * @name NodeMultiSelectCSV
+ * @access public
  * @extends NodeBase
  */
-class NodeMultiSelectCSV extends NodeBase {
+export class NodeMultiSelectCSV extends NodeBase {
 
 	constructor(props) {
 
@@ -570,15 +722,19 @@ class NodeMultiSelectCSV extends NodeBase {
 	}
 }
 
+// Register with Node
+Node.register('multiselectcsv', NodeMultiSelectCSV);
 
 /**
  * Node Number
  *
  * Handles values that represent numbers (ints, floats, decimal)
  *
+ * @name NodeNumber
+ * @access public
  * @extends NodeBase
  */
-class NodeNumber extends NodeBase {
+export class NodeNumber extends NodeBase {
 
 	constructor(props) {
 		super(props);
@@ -649,14 +805,19 @@ class NodeNumber extends NodeBase {
 	}
 }
 
+// Register with Node
+Node.register('number', NodeNumber);
+
 /**
  * Node Password
  *
  * Handles values that are strings or string-like
  *
+ * @name NodePassword
+ * @access public
  * @extends NodeBase
  */
-class NodePassword extends NodeBase {
+export class NodePassword extends NodeBase {
 
 	constructor(props) {
 		super(props);
@@ -721,14 +882,19 @@ class NodePassword extends NodeBase {
 	}
 }
 
+// Register with Node
+Node.register('password', NodePassword);
+
 /**
  * Node Phone Number
  *
  * Handles values that are phone numbers
  *
+ * @name NodePhoneNumber
+ * @access public
  * @extends NodeBase
  */
-class NodePhoneNumber extends NodeBase {
+export class NodePhoneNumber extends NodeBase {
 
 	constructor(props) {
 		super(props);
@@ -781,14 +947,19 @@ class NodePhoneNumber extends NodeBase {
 	}
 }
 
+// Register with Node
+Node.register('phone_number', NodePhoneNumber);
+
 /**
  * Node Select
  *
  * Handles values that have specific options
  *
+ * @name NodeSelect
+ * @access public
  * @extends NodeBase
  */
-class NodeSelect extends NodeBase {
+export class NodeSelect extends NodeBase {
 
 	constructor(props) {
 
@@ -909,14 +1080,19 @@ class NodeSelect extends NodeBase {
 	}
 }
 
+// Register with Node
+Node.register('select', NodeSelect);
+
 /**
  * Node Text
  *
  * Handles values that are strings or string-like
  *
+ * @name NodeText
+ * @access public
  * @extends NodeBase
  */
-class NodeText extends NodeBase {
+export class NodeText extends NodeBase {
 
 	constructor(props) {
 		super(props);
@@ -995,14 +1171,19 @@ class NodeText extends NodeBase {
 	}
 }
 
+// Register with Node
+Node.register('text', NodeText);
+
 /**
  * Node TextArea
  *
  * Handles values that are strings or string-like over multiple lines
  *
+ * @name NodeTextArea
+ * @access public
  * @extends React.Component
  */
-class NodeTextArea extends React.Component {
+export class NodeTextArea extends React.Component {
 
 	constructor(props) {
 		super(props);
@@ -1092,14 +1273,19 @@ class NodeTextArea extends React.Component {
 	}
 }
 
+// Register with Node
+Node.register('textarea', NodeTextArea);
+
 /**
  * Node Time
  *
  * Handles values that represent a time
  *
+ * @name NodeTime
+ * @access public
  * @extends NodeBase
  */
-class NodeTime extends NodeBase {
+export class NodeTime extends NodeBase {
 
 	constructor(props) {
 		super(props);
@@ -1159,219 +1345,107 @@ class NodeTime extends NodeBase {
 	}
 }
 
-// Node
-export default class Node extends React.Component {
+// Register with Node
+Node.register('time', NodeTime);
 
+/**
+ * Search Options
+ *
+ * Displays options for how to search the field based on the type
+ *
+ * @name SearchOption
+ * @access private
+ * @extends React.Component
+ */
+class SearchOption extends React.Component {
+
+	// Constructor
 	constructor(props) {
 
-		// Call parent
+		// Call the parent
 		super(props);
 
-		// Get the react display properties
-		let oReact = props.node.special('react') || {}
+		// Init the type
+		let lOpts = null;
 
-		// If the title is not set
-		if(!('title' in oReact)) {
-			oReact.title = ucfirst(props.name);
-		}
+		// Figure out the type of options based on the Node's type
+		switch(props.type) {
+			case 'hidden':
+			case 'select':
+			case 'multiselectcsv':
+				break;
 
-		// If there's no default
-		if(!('default' in oReact)) {
-			oReact.default = null;
+			case 'text':
+			case 'textarea':
+				lOpts = [
+					<option key="exact" value="exact">Exact</option>,
+					<option key="value" value="start">Starts with</option>,
+					<option key="end" value="end">Ends with</option>,
+					<option key="asterisk" value="asterisk">Uses *</option>
+				];
+				break;
+
+			default:
+				lOpts = [
+					<option key="exact" value="exact">Exact</option>,
+					<option key="greater" value="greater">Greater than (inclusive)</option>,
+					<option key="less" value="less">Less than (inclusive)</option>
+				];
+				break;
 		}
 
 		// Init state
 		this.state = {
-			display: oReact,
-			type: 'type' in oReact ?
-						oReact.type :
-						this.defaultType(props.node),
-			value: props.value !== null ? props.value : oReact.default
-		}
+			options: lOpts,
+			value: lOpts ? 'exact': null
+		};
 
-		// Child elements
-		this.el = null;
-		this.search = null;
+		// Refs
+		this.select = null;
+
+		// Bind methods
+		this.change = this.change.bind(this);
 	}
 
-	error(msg) {
-		this.el.error(msg);
+	change(ev) {
+		this.setState({value: ev.target.value});
 	}
 
-	// Figure out the element type based on the default values of the node
-	defaultType(node) {
-
-		// If it has options, it's a select, no question
-		if(node.options()) {
-			return 'select';
-		}
-
-		// Get the node type
-		let sType = node.type();
-
-		// Figure it out by type
-		switch(sType) {
-
-			// If it's a string type at its core
-			case 'any':
-			case 'base64':
-			case 'ip':
-			case 'json':
-			case 'md5':
-			case 'string':
-			case 'uuid':
-			case 'uuid4':
-				return 'text';
-
-			// If it's a number
-			case 'decimal':
-			case 'float':
-			case 'int':
-			case 'price':
-			case 'timestamp':
-			case 'uint':
-				return 'number';
-
-			// Else it's its own type
-			case 'bool':
-			case 'date':
-			case 'datetime':
-			case 'time':
-				return sType;
-
-			default:
-				throw new Error('invalid type in format/Node: ' + sType);
-		}
-	}
-
+	// Render
 	render() {
-
-		// Get the component name based on the type
-		let ElName = null;
-		switch(this.state.type) {
-			case 'bool': ElName = NodeBool; break;
-			case 'date': ElName = NodeDate; break;
-			case 'datetime': ElName = NodeDatetime; break;
-			case 'hidden': ElName = NodeHidden; break;
-			case 'multiselectcsv': ElName = NodeMultiSelectCSV; break;
-			case 'number': ElName = NodeNumber; break;
-			case 'password': ElName = NodePassword; break;
-			case 'phone_number': ElName = NodePhoneNumber; break;
-			case 'select': ElName = NodeSelect; break;
-			case 'text': ElName = NodeText; break;
-			case 'textarea': ElName = NodeTextArea; break;
-			case 'time': ElName = NodeTime; break;
-			default:
-				throw new Error('invalid type in format/Node: ' + this.state.type);
-		}
-
-		// Get the value
-		let mValue = this.state.value !== null ?
-						this.state.value :
-						'';
-
-		return (
-			<React.Fragment>
-				<ElName
-					display={this.state.display}
-					error={this.props.error}
-					label={this.props.label}
-					onChange={this.props.onChange}
-					onEnter={this.props.onEnter || false}
-					name={this.props.name}
-					node={this.props.node}
-					ref={el => this.el = el}
-					value={mValue}
-					validation={this.props.validation}
+		if(this.state.options) {
+			return (
+				<Select
+					className="selectSearchType"
+					inputRef={el => this.select = el}
+					native
+					onChange={this.change}
 					variant={this.props.variant}
-				/>
-				{this.props.type === 'search' &&
-					<SearchOption
-						ref={el => this.search = el}
-						type={this.state.type}
-						variant={this.props.variant}
-					/>
-				}
-			</React.Fragment>
-		);
+					value={this.state.value}
+				>
+					{this.state.options}
+				</Select>
+			);
+		} else {
+			return(
+				<div className="selectSearchEmpty">&nbsp;</div>
+			);
+		}
 	}
 
+	// Return the value of the select
 	get value() {
-
-		// Get the value of the element
-		let mValue = this.el.value;
-
-		// If the value is null
-		if(mValue === null) {
-			return null;
-		}
-
-		// If we're not in search mode, return the value as is
-		if(this.props.type !== 'search') {
-			return mValue;
-		}
-
-		// Get the value of the search select
-		let sSearch = this.search.value;
-
-		// If it's null or exact, return the value as is
-		if(sSearch === null || sSearch === 'exact') {
-			return mValue;
-		}
-
-		// Else, generate an object describing the search
-		else {
-			return {
-				type: sSearch,
-				value: this.el.value
-			}
+		if(!this.state.options) {
+			return 'exact';
+		} else {
+			return this.select.value;
 		}
 	}
 
+	// Set the dropdown
 	set value(val) {
-
-		// If we're not in search mode, set the value as is
-		if(this.props.type !== 'search') {
-			this.el.value = val;
-			return;
+		if(this.state.options) {
+			this.setState({value: val});
 		}
-
-		// If we didn't get an object, assume exact
-		if(!isObject(val)) {
-			this.el.value = val;
-			this.search.value = 'exact';
-			return;
-		}
-
-		// Set the value and search dropdown
-		this.el.value = val.value;
-		this.search.value = val.type;
 	}
-}
-
-// Register the component
-Child.register('Node', Node);
-
-// Force props
-Node.propTypes = {
-	error: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
-	label: PropTypes.oneOf(['above', 'none', 'placeholder']),
-	name: PropTypes.string.isRequired,
-	node: PropTypes.instanceOf(FNode).isRequired,
-	onChange: PropTypes.func,
-	onEnter: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
-	type: PropTypes.oneOf(['create', 'search', 'update']).isRequired,
-	value: PropTypes.any,
-	validation: PropTypes.bool,
-	variant: PropTypes.oneOf(['filled', 'outlined', 'standard'])
-}
-
-// Default props
-Node.defaultProps = {
-	error: false,
-	label: 'placeholder',
-	onEnter: false,
-	value: null,
-	validation: true,
-	variant: 'outlined'
 }
