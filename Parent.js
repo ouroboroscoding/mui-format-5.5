@@ -47,6 +47,19 @@ export default class Parent extends React.Component {
 		this.fields = {};
 	}
 
+	componentDidUpdate(prevProps) {
+
+		// If the error changed
+		if(prevProps.error !== this.props.error) {
+			this.error(this.props.error);
+		}
+
+		// If the Node changed
+		if(prevProps.node !== this.props.node) {
+			this.setState(this.generateState());
+		}
+	}
+
 	error(errors) {
 		for(var k in errors) {
 			if(k in this.fields) {

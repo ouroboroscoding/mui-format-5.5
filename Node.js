@@ -56,35 +56,23 @@ export class Node extends React.Component {
 		// Call parent
 		super(props);
 
-		// Get the react display properties
-		let oReact = props.node.special('react') || {}
+		// Set initial state
+		this.state = this.generateState();
 
-		// If the title is not set
-		if(!('title' in oReact)) {
-			oReact.title = ucfirst(props.name);
-		}
-
-		// If there's no default
-		if(!('default' in oReact)) {
-			oReact.default = null;
-		}
-
-		// Init state
-		this.state = {
-			display: oReact,
-			type: 'type' in oReact ?
-						oReact.type :
-						this.defaultType(props.node),
-			value: props.value !== null ? props.value : oReact.default
-		}
+		// Add the value
+		this.state.value = props.value !== null ? props.value : this.state.display.default
 
 		// Child elements
 		this.el = null;
 		this.search = null;
 	}
 
-	error(msg) {
-		this.el.error(msg);
+	componentDidUpdate(prevProps) {
+
+		// If the Node changed
+		if(prevProps.node !== this.props.node) {
+			this.setState(this.generateState());
+		}
 	}
 
 	// Figure out the element type based on the default values of the node
@@ -130,6 +118,34 @@ export class Node extends React.Component {
 
 			default:
 				throw new Error('invalid type in format/Node: ' + sType);
+		}
+	}
+
+	error(msg) {
+		this.el.error(msg);
+	}
+
+	generateState() {
+
+		// Get the react display properties
+		let oReact = this.props.node.special('react') || {}
+
+		// If the title is not set
+		if(!('title' in oReact)) {
+			oReact.title = ucfirst(this.props.name);
+		}
+
+		// If there's no default
+		if(!('default' in oReact)) {
+			oReact.default = null;
+		}
+
+		// Return the new state
+		return {
+			display: oReact,
+			type: 'type' in oReact ?
+						oReact.type :
+						this.defaultType(this.props.node),
 		}
 	}
 

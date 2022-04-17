@@ -28,7 +28,15 @@ import Rest from 'shared/communication/rest';
 import Events from 'shared/generic/events';
 import { isObject } from 'shared/generic/tools';
 
-// Form
+/**
+ * Form
+ *
+ * Handles create/update forms using Parent
+ *
+ * @name Form
+ * @access public
+ * @extends React.Component
+ */
 export default class Form extends React.Component {
 
 	constructor(props) {
