@@ -24,6 +24,7 @@ import Dialog from '@mui/material/Dialog';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormHelperText from '@mui/material/FormHelperText';
+import InputAdornment from '@mui/material/InputAdornment';
 import InputLabel from '@mui/material/InputLabel';
 import Grid from '@mui/material/Grid';
 import Select from '@mui/material/Select';
@@ -104,7 +105,6 @@ export class Node extends React.Component {
 			case 'decimal':
 			case 'float':
 			case 'int':
-			case 'price':
 			case 'timestamp':
 			case 'uint':
 				return 'number';
@@ -113,6 +113,7 @@ export class Node extends React.Component {
 			case 'bool':
 			case 'date':
 			case 'datetime':
+			case 'price':
 			case 'time':
 				return sType;
 
@@ -965,6 +966,92 @@ export class NodePhoneNumber extends NodeBase {
 
 // Register with Node
 Node.register('phone_number', NodePhoneNumber);
+
+/**
+ * Node Price
+ *
+ * Handles values that represent numbers (ints, floats, decimal)
+ *
+ * @name NodePrice
+ * @access public
+ * @extends NodeBase
+ */
+export class NodePrice extends NodeBase {
+
+	constructor(props) {
+		super(props);
+		this.change = this.change.bind(this);
+	}
+
+	change(event) {
+
+		// Check the new value is valid
+		let error = false;
+		if(this.props.validation &&
+			!this.props.node.valid(event.target.value === '' ? null : event.target.value)) {
+			error = 'Invalid Value';
+		}
+
+		// Update the state
+		this.setState({
+			error: error,
+			value: event.target.value
+		});
+
+		// If there's a callback
+		if(this.props.onChange) {
+			this.props.onChange(event.target.value);
+		}
+	}
+
+	render() {
+
+		// Initial input props
+		let inputProps = {};
+		let minmax = this.props.node.minmax();
+		if(minmax.minimum) {
+			inputProps.min = minmax.minimum;
+		}
+		if(minmax.maximum) {
+			inputProps.max = minmax.maximum;
+		}
+
+		// Initial props
+		let props = {
+			className: 'node_' + this.props.name,
+			error: this.state.error !== false,
+			helperText: this.state.error,
+			onKeyPress: this.keyPressed,
+			onChange: this.change,
+			type: 'number',
+			value: this.state.value,
+			variant: this.props.variant,
+			inputProps: inputProps,
+			InputProps: {
+				startAdornment: <InputAdornment position="start">$</InputAdornment>,
+			}
+		}
+
+		// If the label is a placeholder
+		if(this.props.label === 'placeholder') {
+			props.label = this.props.display.title;
+			props.placeholder = this.props.display.placeholder;
+		}
+
+		// Render
+		return (
+			<React.Fragment>
+				{this.props.label === 'above' &&
+					<Typography>{this.props.display.title}</Typography>
+				}
+				<TextField {...props} />
+			</React.Fragment>
+		);
+	}
+}
+
+// Register with Node
+Node.register('price', NodePrice);
 
 /**
  * Node Select
