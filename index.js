@@ -1,5 +1,5 @@
 // Import all modules
-import ArrayNode from './Array';
+import ArrayNode from './ArrayNode';
 import Child from './Child';
 import Form from './Form';
 import { Node } from './Node';

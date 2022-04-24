@@ -27,7 +27,15 @@ import Child from './Child';
 // Generic modules
 import { afindi, clone, ucfirst, uuidv4 } from 'shared/generic/tools';
 
-// Array Component
+/**
+ * Array Node
+ *
+ * Handles array types with the ability to add / remove elements
+ *
+ * @name ArrayNode
+ * @access public
+ * @extends React.Component
+ */
 export default class ArrayNode extends React.Component {
 
 	constructor(props) {
@@ -49,8 +57,12 @@ export default class ArrayNode extends React.Component {
 			oReact.title = ucfirst(props.name);
 		}
 
+		// The type
+		let sType = 'type' in oReact ? oReact.type : null;
+
 		// Init state
 		this.state = {
+			custom: sType && sType in ArrayNode._registered ? ArrayNode._registered[sType] : null,
 			nodeClass: this.child.class(),
 			display: oReact,
 			elements: this.props.value.map(v => {
@@ -107,6 +119,25 @@ export default class ArrayNode extends React.Component {
 		// Reset the refs
 		this.nodes = {};
 
+		// If we have a custom component
+		if(this.state.custom) {
+
+			// Store the name
+			let ElName = this.state.custom;
+
+			// Render custom type
+			return (
+				<ElName
+					ref={el => this.nodes = el}
+					name={this.props.name}
+					node={this.props.node}
+					onEnter={this.props.onEnter}
+					value={this.props.value}
+					validation={this.props.validation}
+				/>
+			);
+		}
+
 		// Render
 		return (
 			<Box className="nodeArray">
@@ -152,6 +183,15 @@ export default class ArrayNode extends React.Component {
 
 	valid() {
 
+		// If we have a custom component
+		if(this.state.custom) {
+			let bValid = this.props.node.valid(this.nodes.value);
+			if(!bValid) {
+				this.nodes.error(this.props.node.validation_failures);
+			}
+			return bValid;
+		}
+
 		// Valid?
 		let bValid = true;
 
@@ -175,6 +215,11 @@ export default class ArrayNode extends React.Component {
 	// Called when value is request
 	get value() {
 
+		// If we have a custom component
+		if(this.state.custom) {
+			return this.nodes.value;
+		}
+
 		// Init the return value
 		let lRet = [];
 
@@ -195,6 +240,12 @@ export default class ArrayNode extends React.Component {
 	// Called when new value is passed
 	set value(val) {
 
+		// If we have a custom component
+		if(this.state.custom) {
+			this.nodes.value = val;
+			return;
+		}
+
 		// Regenerate the state
 		this.setState({
 			elements: val.map(v => {
@@ -205,6 +256,22 @@ export default class ArrayNode extends React.Component {
 			})
 		});
 	}
+}
+
+/**
+ * Register
+ *
+ * Static method for registering array types
+ *
+ * @name register
+ * @access public
+ * @param String type The type, or name, of the element to register
+ * @param Class class_ The actual class to register under the type
+ * @returns void
+ */
+ArrayNode._registered = {};
+ArrayNode.register = (type, class_) => {
+	ArrayNode._registered[type] = class_;
 }
 
 // Register the component
