@@ -91,7 +91,13 @@ export default class ArrayNode extends React.Component {
 	}
 
 	error(errors) {
-		console.error(errors);
+
+		// If we have a custom component
+		if(this.state.custom) {
+			this.nodes.error(errors);
+		} else {
+			console.error(errors);
+		}
 	}
 
 	remove(key) {
