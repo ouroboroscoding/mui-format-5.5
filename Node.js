@@ -155,7 +155,7 @@ export class Node extends React.Component {
 		// Get the component name based on the type
 		let ElName = null;
 		if(this.state.type in Node._registered) {
-			ElName = Node._registered[this.state.type];
+			ElName = Node._registered[this.state.type].class_;
 		} else {
 			throw new Error('invalid type in format/Node: ' + this.state.type);
 		}
@@ -163,7 +163,7 @@ export class Node extends React.Component {
 		// Get the value
 		let mValue = this.state.value !== null ?
 						this.state.value :
-						'';
+						Node._registered[this.state.type].default_;
 
 		return (
 			<React.Fragment>
@@ -256,8 +256,11 @@ export class Node extends React.Component {
  * @returns void
  */
 Node._registered = {};
-Node.register = (type, class_) => {
-	Node._registered[type] = class_;
+Node.register = (type, class_, default_='') => {
+	Node._registered[type] = {
+		class_: class_,
+		defalt_: default_
+	}
 }
 
 // Register the component with the Child generator

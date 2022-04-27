@@ -81,7 +81,6 @@ export default class Form extends React.Component {
 
 		// Make sure each child of the parent is valid
 		if(!this.parent.valid()) {
-			Events.trigger('error', 'Please fix invalid data');
 			this.parent.error(Rest.toTree(this.props.tree.validation_failures));
 			return;
 		}
@@ -207,8 +206,17 @@ export default class Form extends React.Component {
 	submitError(error) {
 		if(error.code === 1001) {
 			this.parent.error(error.msg);
-		} else if(error.code in this.props.errors) {
-			Events.trigger('error', this.props.errors[error.code]);
+		} else if(error.code.toString() in this.props.handleErrors) {
+
+			// If the value is already an object
+			if(isObject(this.props.handleErrors[error.code.toString()])) {
+				this.parent.error(this.props.handleErrors[error.code.toString()]);
+			} else {
+				let oErrors = this.props.handleErrors[error.code.toString()](error);
+				if(isObject(oErrors)) {
+					this.parent.error(oErrors);
+				}
+			}
 		} else {
 			Events.trigger('error', error);
 		}
@@ -218,7 +226,6 @@ export default class Form extends React.Component {
 
 		// Make sure each child of the parent is valid
 		if(!this.parent.valid()) {
-			Events.trigger('error', 'Please fix invalid data');
 			this.parent.error(Rest.toTree(this.props.tree.validation_failures));
 			return;
 		}
@@ -307,7 +314,12 @@ Form.propTypes = {
 		trigger: PropTypes.string.isRequired,
 		options: PropTypes.object.isRequired
 	})),
-	errors: PropTypes.object,
+	handleErrors: PropTypes.objectOf(
+		PropTypes.oneOfType([
+			PropTypes.func,
+			PropTypes.objectOf(PropTypes.string)
+		])
+	),
 	gridSizes: PropTypes.objectOf(
 		PropTypes.exact({
 			xs: PropTypes.number,
@@ -341,7 +353,7 @@ Form.propTypes = {
 // Default props
 Form.defaultProps = {
 	cancel: false,
-	errors: {},
+	handleErrors: {},
 	gridSizes: {__default__: {xs: 12, sm: 6, lg: 3}},
 	gridSpacing: 2,
 	label: 'placeholder',
