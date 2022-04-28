@@ -134,6 +134,8 @@ export default class ArrayNode extends React.Component {
 			// Render custom type
 			return (
 				<ElName
+					display={this.state.display}
+					label={this.props.label}
 					ref={el => this.nodes = el}
 					name={this.props.name}
 					node={this.props.node}
@@ -147,7 +149,7 @@ export default class ArrayNode extends React.Component {
 		// Render
 		return (
 			<Box className="nodeArray">
-				{this.props.name &&
+				{this.state.display.title &&
 					<Typography className="legend">{this.state.display.title}</Typography>
 				}
 				{this.state.elements.map(o =>
