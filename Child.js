@@ -26,7 +26,7 @@ const _components = {};
  * @access public
  * @static
  * @param String name The name of the component to create
- * @param Object props Attributes sent to the component
+ * @param Object props Properties passed to the component
  * @returns React.Component
  */
 function create(name, props) {

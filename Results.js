@@ -51,7 +51,7 @@ import { afindi, clone, omap, ucfirst } from 'shared/generic/tools';
  *
  * @name PaginationActions
  * @access private
- * @param Object props Attributes sent to the component
+ * @param Object props Properties passed to the component
  * @return React.Component
  */
 function PaginationActions(props) {
@@ -118,7 +118,7 @@ function PaginationActions(props) {
  *
  * @name ResultsRow
  * @access private
- * @param Object props Attributes sent to the component
+ * @param Object props Properties passed to the component
  * @return React.Component
  */
 function ResultsRow(props) {
@@ -373,7 +373,7 @@ ResultsRow.propTypes = {
  *
  * @name TotalsRow
  * @access private
- * @param Object props Attributes sent to the component
+ * @param Object props Properties passed to the component
  * @return React.Component
  */
 function TotalsRow(props) {
@@ -422,7 +422,7 @@ TotalsRow.propTypes = {
  *
  * @name Results
  * @access public
- * @param Object props Attributes sent to the component
+ * @param Object props Properties passed to the component
  * @return React.Component
  */
 export default class Results extends React.PureComponent {
