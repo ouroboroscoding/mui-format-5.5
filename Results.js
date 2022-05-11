@@ -237,6 +237,11 @@ function ResultsRow(props) {
 						mContent = mValue === 1 ? 'True' : 'False';
 					}
 
+					// Else, if the type is a price
+					else if(props.info.types[sField] === 'price') {
+						mContent = `$${mValue}`;
+					}
+
 					// Else if the type is a timestamp
 					else if(props.info.types[sField] === 'timestamp') {
 						mContent = iso(mValue);
