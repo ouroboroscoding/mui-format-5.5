@@ -26,7 +26,7 @@ import Rest from 'shared/communication/rest';
 // Shared Generic
 import Events from 'shared/generic/events';
 import Hash from 'shared/generic/hash';
-import { empty } from 'shared/generic/tools';
+import { empty, isObject } from 'shared/generic/tools';
 
 // Search
 export default class Search extends React.Component {
@@ -108,18 +108,12 @@ export default class Search extends React.Component {
 
 		// Run the search
 		Rest.read(this.props.service, this.props.noun, {
-			"filter": values
+			filter: values
 		}).then(res => {
 
 			// If there's an error
 			if(res.error && !res._handled) {
-				if(res.error.code === 1001) {
-					this.parent.errors(res.error.msg);
-				} else if(res.error.code in this.props.errors) {
-					Events.trigger('error', this.props.errors[res.error.code]);
-				} else {
-					Events.trigger('error', res.error);
-				}
+				this.searchError(res.error);
 			}
 
 			// If there's a warning
@@ -136,6 +130,25 @@ export default class Search extends React.Component {
 				}
 			}
 		})
+	}
+
+	searchError(error) {
+		if(error.code === 1001) {
+			this.parent.error(error.msg);
+		} else if(error.code.toString() in this.props.handleErrors) {
+
+			// If the value is already an object
+			if(isObject(this.props.handleErrors[error.code.toString()])) {
+				this.parent.error(this.props.handleErrors[error.code.toString()]);
+			} else {
+				let oErrors = this.props.handleErrors[error.code.toString()](error);
+				if(isObject(oErrors)) {
+					this.parent.error(oErrors);
+				}
+			}
+		} else {
+			Events.trigger('error', error);
+		}
 	}
 
 	render() {
@@ -176,6 +189,12 @@ Search.propTypes = {
 			xl: PropTypes.number
 		})
 	),
+	handleErrors: PropTypes.objectOf(
+		PropTypes.oneOfType([
+			PropTypes.func,
+			PropTypes.objectOf(PropTypes.string)
+		])
+	),
 	hash: PropTypes.string.isRequired,
 	label: PropTypes.oneOf(['above', 'none', 'placeholder']),
 	name: PropTypes.string.isRequired,
@@ -188,5 +207,6 @@ Search.propTypes = {
 // Default props
 Search.defaultProps = {
 	gridSizes: {__default__: {xs: 12, sm: 6, lg: 3}},
+	handleErrors: {},
 	label: 'placeholder'
 }

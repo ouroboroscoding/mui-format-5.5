@@ -18,6 +18,9 @@ import { Link } from 'react-router-dom';
 
 // Material UI
 import IconButton from '@mui/material/IconButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -84,28 +87,28 @@ function PaginationActions(props) {
 				disabled={props.page === 0}
 				aria-label="First Page"
 			>
-				<i className="fas fa-angle-double-left" />
+				<i className="fa-solid fa-angle-double-left" />
 			</IconButton>
 			<IconButton
 				onClick={prev}
 				disabled={props.page === 0}
 				aria-label="Previous Page"
 			>
-				<i className="fas fa-angle-left" />
+				<i className="fa-solid fa-angle-left" />
 			</IconButton>
 			<IconButton
 				onClick={next}
 				disabled={props.page >= Math.max(0, Math.ceil(props.count / props.rowsPerPage) - 1)}
 				aria-label="Next Page"
 			>
-				<i className="fas fa-angle-right" />
+				<i className="fa-solid fa-angle-right" />
 			</IconButton>
 			<IconButton
 				onClick={last}
 				disabled={props.page >= Math.max(0, Math.ceil(props.count / props.rowsPerPage) - 1)}
 				aria-label="Last Page"
 			>
-				<i className="fas fa-angle-double-right" />
+				<i className="fa-solid fa-angle-double-right" />
 			</IconButton>
 		</div>
 	);
@@ -125,6 +128,7 @@ function ResultsRow(props) {
 
 	// State
 	let [actions, actionsSet] = useState({});
+	let [menu, menuSet] = useState(false);
 	let [update, updateSet] = useState(false);
 
 	// Called when a customer action icon is clicked
@@ -203,7 +207,7 @@ function ResultsRow(props) {
 			mContent = (
 				<Tooltip title="Copy Record Key">
 					<IconButton onClick={copyKey}>
-						<i className="fas fa-key" />
+						<i className="fa-solid fa-key" />
 					</IconButton>
 				</Tooltip>
 			);
@@ -306,16 +310,44 @@ function ResultsRow(props) {
 			{props.update &&
 				<Tooltip title="Edit the record">
 					<IconButton className="icon" onClick={ev => updateSet(b => !b)}>
-						<i className={'fas fa-edit ' + (update ? 'open' : 'closed')} />
+						<i className={'fa-solid fa-edit ' + (update ? 'open' : 'closed')} />
 					</IconButton>
 				</Tooltip>
 			}
 			{props.remove &&
 				<Tooltip title="Delete the record">
 					<IconButton className="icon" onClick={() => props.remove(props.data[props.info.primary])}>
-						<i className="fas fa-trash-alt" />
+						<i className="fa-solid fa-trash-alt" />
 					</IconButton>
 				</Tooltip>
+			}
+			{props.menu.length > 0 &&
+				<Tooltip title="More">
+					<IconButton className="icon" onClick={ev => menuSet(b => b ? false : ev.currentTarget)}>
+						<i className="fa-solid fa-ellipsis-vertical" />
+					</IconButton>
+				</Tooltip>
+			}
+			{menu !== false &&
+				<Menu
+					anchorEl={menu}
+					open={true}
+					onClose={ev => menuSet(false)}
+				>
+					{props.menu.map((o,i) =>
+						<MenuItem key={i} onClick={ev => {
+							menuSet(false);
+							o.callback(props.data);
+						}}>
+							{o.icon &&
+								<ListItemIcon>
+									<i className={o.icon} />
+								</ListItemIcon>
+							}
+							{o.title}
+						</MenuItem>
+					)}
+				</Menu>
 			}
 		</TableCell>
 	);
@@ -366,6 +398,7 @@ ResultsRow.propTypes = {
 	errors: PropTypes.object.isRequired,
 	fields: PropTypes.array.isRequired,
 	info: PropTypes.object.isRequired,
+	menu: PropTypes.array.isRequired,
 	options: PropTypes.object.isRequired,
 	remove: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]).isRequired,
 	update: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]).isRequired
@@ -707,7 +740,7 @@ export default class Results extends React.PureComponent {
 							<TableCell align="right" className="actions">
 								<Tooltip title="Export CSV">
 									<IconButton onClick={this.exportCsv}>
-										<i className="fas fa-file-csv" />
+										<i className="fa-solid fa-file-csv" />
 									</IconButton>
 								</Tooltip>
 							</TableCell>
@@ -727,6 +760,7 @@ export default class Results extends React.PureComponent {
 								fields={this.fields}
 								info={this.info}
 								key={row[this.info.primary]}
+								menu={this.props.menu}
 								options={this.state.options}
 								remove={this.props.remove ? this.recordRemoved : false}
 								types={this.state.types}
@@ -854,6 +888,7 @@ Results.propTypes = {
 	data: PropTypes.array.isRequired,
 	errors: PropTypes.object,
 	fields: PropTypes.array,
+	menu: PropTypes.array,
 	noun: PropTypes.string.isRequired,
 	order: PropTypes.string,
 	orderBy: PropTypes.string.isRequired,
@@ -870,6 +905,7 @@ Results.defaultProps = {
 	custom: {},
 	errors: {},
 	fields: [],
+	menu: [],
 	order: "asc",
 	remove: false,
 	totals: false,
