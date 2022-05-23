@@ -187,7 +187,7 @@ export default class Form extends React.Component {
 					gridSizes={this.props.gridSizes}
 					label={this.props.label}
 					ref={el => this.parent = el}
-					name="user"
+					name={this.props.tree._name}
 					node={this.props.tree}
 					onEnter={callback}
 					type={this.state.type}
