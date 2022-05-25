@@ -304,7 +304,7 @@ export class NodeBase extends React.Component {
 		super(props);
 		this.state = {
 			error: false,
-			value: props.value
+			value: props.value === undefined ? null : props.value
 		}
 		this.keyPressed = this.keyPressed.bind(this);
 	}
@@ -326,6 +326,9 @@ export class NodeBase extends React.Component {
 	}
 	set value(val) {
 		this.setState({value: val});
+		if(this.props.onChange) {
+			this.props.onChange(val);
+		}
 	}
 }
 
@@ -433,14 +436,14 @@ export class NodeDate extends NodeBase {
 			onKeyPress: this.keyPressed,
 			onChange: this.change,
 			type: 'date',
-			value: this.state.value,
+			value: this.state.value === null ? '' : this.state.value,
 			variant: this.props.variant
 		}
 
 		// If the label is a placeholder, add additional props
 		if(this.props.label === 'placeholder') {
 			props.label = this.props.display.title;
-			props.InputLabelProps = {shrink: true}
+
 		}
 
 		// Render
@@ -510,14 +513,14 @@ export class NodeDatetime extends NodeBase {
 			onKeyPress: this.keyPressed,
 			onChange: this.change,
 			type: 'datetime-local',
-			value: this.state.value.replace(' ', 'T'),
+			value: this.state.value === null ? '' : this.state.value.replace(' ', 'T'),
 			variant: this.props.variant
 		}
 
 		// If the label is a placeholder, add additional props
 		if(this.props.label === 'placeholder') {
 			props.label = this.props.display.title;
-			props.InputLabelProps = {shrink: true};
+
 		}
 
 		// Render
@@ -559,7 +562,7 @@ export class NodeHidden extends NodeBase {
 		return (
 			<input
 				type="hidden"
-				value={this.state.value}
+				value={this.state.value === null ? '' : this.state.value}
 			/>
 		);
 	}
@@ -691,7 +694,7 @@ export class NodeMultiSelectCSV extends NodeBase {
 		// If the label is a placeholder, add additional props
 		if(this.props.label === 'placeholder') {
 			props.label= this.props.display.title;
-			props.InputLabelProps = {shrink: true};
+
 		}
 
 		return (
@@ -802,7 +805,7 @@ export class NodeNumber extends NodeBase {
 			onKeyPress: this.keyPressed,
 			onChange: this.change,
 			type: 'number',
-			value: this.state.value,
+			value: this.state.value === null ? '' : this.state.value,
 			variant: this.props.variant,
 			inputProps: inputProps
 		}
@@ -811,6 +814,7 @@ export class NodeNumber extends NodeBase {
 		if(this.props.label === 'placeholder') {
 			props.label = this.props.display.title;
 			props.placeholder = this.props.display.placeholder;
+
 		}
 
 		// Render
@@ -880,7 +884,7 @@ export class NodePassword extends NodeBase {
 			onKeyPress: this.keyPressed,
 			onChange: this.change,
 			type: 'password',
-			value: this.state.value,
+			value: this.state.value === null ? '' : this.state.value,
 			variant: this.props.variant,
 		}
 
@@ -888,6 +892,7 @@ export class NodePassword extends NodeBase {
 		if(this.props.label === 'placeholder') {
 			props.label = this.props.display.title;
 			props.placeholder = this.props.display.title;
+
 		}
 
 		// Render
@@ -955,7 +960,7 @@ export class NodePhoneNumber extends NodeBase {
 						label={this.props.display.title}
 						onChange={this.change}
 						onKeyPress={this.keyPressed}
-						value={this.state.value}
+						value={this.state.value === null ? '' : this.state.value}
 						variant={this.props.variant}
 					/>
 					{this.state.error &&
@@ -1027,7 +1032,7 @@ export class NodePrice extends NodeBase {
 			onKeyPress: this.keyPressed,
 			onChange: this.change,
 			type: 'number',
-			value: this.state.value,
+			value: this.state.value === null ? '' : this.state.value,
 			variant: this.props.variant,
 			inputProps: inputProps,
 			InputProps: {
@@ -1039,6 +1044,7 @@ export class NodePrice extends NodeBase {
 		if(this.props.label === 'placeholder') {
 			props.label = this.props.display.title;
 			props.placeholder = this.props.display.placeholder;
+
 		}
 
 		// Render
@@ -1162,14 +1168,14 @@ export class NodeSelect extends NodeBase {
 				}
 				<FormControl className={'node_' + this.props.name} error={this.state.error !== false} variant={this.props.variant}>
 					{this.props.label === 'placeholder' &&
-						<InputLabel id={this.props.name} >{this.props.display.title}</InputLabel>
+						<InputLabel id={this.props.name}>{this.props.display.title}</InputLabel>
 					}
 					<Select
 						label={this.props.display.title}
 						labelId={this.props.name}
 						native
 						onChange={this.change}
-						value={this.state.value}
+						value={this.state.value === null ? '' : this.state.value}
 					>
 						{lOpts}
 					</Select>
@@ -1263,6 +1269,7 @@ export class NodeText extends NodeBase {
 		if(this.props.label === 'placeholder') {
 			props.label = this.props.display.title;
 			props.placeholder = this.props.display.placeholder;
+
 		}
 
 		// Render
@@ -1429,14 +1436,13 @@ export class NodeTime extends NodeBase {
 			onKeyPress: this.keyPressed,
 			onChange: this.change,
 			type: 'time',
-			value: this.state.value,
+			value: this.state.value === null ? '' : this.state.value,
 			variant: this.props.variant
 		}
 
 		// If the label is a placeholder, add additional props
 		if(this.props.label === 'placeholder') {
 			props.label = this.props.display.title;
-			props.InputLabelProps = {shrink: true};
 		}
 
 		// Render
@@ -1527,7 +1533,7 @@ class SearchOption extends React.Component {
 					native
 					onChange={this.change}
 					variant={this.props.variant}
-					value={this.state.value}
+					value={this.state.value === null ? '' : this.state.value}
 				>
 					{this.state.options}
 				</Select>

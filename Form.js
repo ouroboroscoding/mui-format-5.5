@@ -331,7 +331,6 @@ Form.propTypes = {
 	),
 	gridSpacing: PropTypes.number,
 	label: PropTypes.oneOf(['above', 'none', 'placeholder']),
-	name: PropTypes.string,
 	nodeVariant: PropTypes.oneOf(['filled', 'outlined', 'standard']),
 	noun: PropTypes.string.isRequired,
 	overrideSubmit: PropTypes.oneOfType([
