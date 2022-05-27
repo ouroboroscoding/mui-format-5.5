@@ -81,7 +81,6 @@ export default class Form extends React.Component {
 
 		// Make sure each child of the parent is valid
 		if(!this.parent.valid()) {
-			this.parent.error(Rest.toTree(this.props.tree.validation_failures));
 			return;
 		}
 
@@ -226,7 +225,6 @@ export default class Form extends React.Component {
 
 		// Make sure each child of the parent is valid
 		if(!this.parent.valid()) {
-			this.parent.error(Rest.toTree(this.props.tree.validation_failures));
 			return;
 		}
 

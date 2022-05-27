@@ -325,10 +325,22 @@ export class NodeBase extends React.Component {
 		return this.state.value === '' ? null : this.state.value;
 	}
 	set value(val) {
-		this.setState({value: val});
+		let oState = {value: val};
+
+		// Let anyone interested know
 		if(this.props.onChange) {
 			this.props.onChange(val);
 		}
+
+		// Make sure it's valid
+		if(this.props.node.valid(val)) {
+			oState.error = false;
+		} else {
+			oState.error = this.props.node.validation_failures[0][1]
+		}
+
+		// Set the state
+		this.setState(oState);
 	}
 }
 
