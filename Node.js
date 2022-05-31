@@ -39,7 +39,7 @@ import Child from './Child';
 import { SelectBase } from './Shared';
 
 // Generic modules
-import { isObject, ucfirst } from 'shared/generic/tools';
+import { afindi, isObject, ucfirst } from 'shared/generic/tools';
 
 /**
  * Node
@@ -1134,7 +1134,7 @@ export class NodeSelect extends NodeBase {
 		let oState = {options: data};
 
 		// If the current value doesn't match the list
-		if(data.indexOf(this.state.value) === -1) {
+		if(afindi(data, 0, this.state.value) === -1) {
 			oState.value = '';
 		}
 
