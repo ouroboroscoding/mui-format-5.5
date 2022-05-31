@@ -93,6 +93,82 @@ export class SelectBase {
 }
 
 /**
+ * Select Custom
+ *
+ * Class to allow for dynamic data in selects/dropdowns set whenever the user
+ * decides
+ *
+ * @name SelectCustom
+ * @access public
+ * @extends SelectBase
+ */
+export class SelectCustom extends SelectBase {
+
+	/**
+	 * Select Custom
+	 *
+	 * Creates an instance of the class with default data
+	 *
+	 * @name SelectCustom
+	 * @access public
+	 * @param Array[] data Default data
+	 * @return SelectCustom
+	 */
+	constructor(data=[]) {
+
+		// Call the base class constructor
+		super();
+
+		// Init the data
+		this._data = data;
+	}
+
+	/**
+	 * Set
+	 *
+	 * Called to set the new array of value and name
+	 *
+	 * @name set
+	 * @access public
+	 * @param Array data An array of arrays with the first element being the key
+	 * 						and the second element being the name
+	 * @returns void
+	 */
+	set(data) {
+
+		// Store the new data
+		this._data = data;
+
+		// Notify
+		this.notify(this._data);
+	}
+
+	/**
+	 * Track
+	 *
+	 * Stores a callback function to be called whenever the key changes
+	 *
+	 * @name track
+	 * @access public
+	 * @param Function callback The function to call when data changes
+	 * @param bool remove Set to false to remove the callback
+	 * @return void
+	 */
+	track(callback, remove=false) {
+
+		// Call the base class track
+		super.track(callback, remove);
+
+		// If we are not removing the callbacl
+		if(!remove) {
+
+			// Return the current data
+			return this._data;
+		}
+	}
+}
+
+/**
  * Select Hash
  *
  * Class to allow for dynamic data based on a hash of key to list of key/value
@@ -241,7 +317,7 @@ export class SelectRest extends SelectBase {
 		// Call the base class track
 		super.track(callback, remove);
 
-		// If we are not removing the callbacl
+		// If we are not removing the callback
 		if(!remove) {
 
 			// If we don't have the data yet
@@ -288,7 +364,7 @@ export class SelectRest extends SelectBase {
 				}
 
 				// Notify the trackers
-				this.notify(this.data);
+				this.notify(this._data);
 			}
 		})
 	}
@@ -297,6 +373,7 @@ export class SelectRest extends SelectBase {
 // Default export
 const Shared = {
 	SelectBase: SelectBase,
+	SelectCustom: SelectCustom,
 	SelectHash: SelectHash,
 	SelectRest: SelectRest
 };
