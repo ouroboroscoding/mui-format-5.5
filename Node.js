@@ -384,7 +384,7 @@ export class NodeBool extends NodeBase {
 
 	render() {
 		return (
-			<Box className="center">
+			<Box>
 				<FormControlLabel
 					className={'node_' + this.props.name}
 					control={<Checkbox
