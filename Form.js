@@ -183,6 +183,7 @@ export default class Form extends React.Component {
 				}
 				<Parent
 					dynamicOptions={this.props.dynamicOptions}
+					fields={this.props.fields}
 					gridSizes={this.props.gridSizes}
 					label={this.props.label}
 					ref={el => this.parent = el}
@@ -312,6 +313,7 @@ Form.propTypes = {
 		trigger: PropTypes.string.isRequired,
 		options: PropTypes.object.isRequired
 	})),
+	fields: PropTypes.arrayOf(PropTypes.string),
 	handleErrors: PropTypes.objectOf(
 		PropTypes.oneOfType([
 			PropTypes.func,

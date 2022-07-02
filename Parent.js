@@ -81,17 +81,22 @@ export default class Parent extends React.Component {
 		// Init the order
 		let lOrder = null;
 
-		// If we have the specific type
-		if(this.props.type in oReact) {
+		// If we were passed specific fields
+		if(this.props.fields) {
+			lOrder = this.props.fields;
+		}
+
+		// Else, if we have the specific type in the react section
+		else if(this.props.type in oReact) {
 			lOrder = oReact[this.props.type];
 		}
 
-		// Else, if we have the generic 'order'
+		// Else, if we have the generic 'order' in the react section
 		else if('order' in oReact) {
 			lOrder = oReact['order'];
 		}
 
-		// Else, just use the keys
+		// Else, just use the keys of the node
 		else {
 			lOrder = this.props.node.keys();
 		}
@@ -298,6 +303,7 @@ Parent.propTypes = {
 		trigger: PropTypes.string.isRequired,
 		options: PropTypes.object.isRequired
 	})),
+	fields: PropTypes.arrayOf(PropTypes.string),
 	gridSizes: PropTypes.objectOf(
 		PropTypes.exact({
 			xs: PropTypes.number,
