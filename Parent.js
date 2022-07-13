@@ -23,6 +23,7 @@ import { SelectHash } from './Shared';
 
 // Generic modules
 import Events from 'shared/generic/events';
+import { empty } from 'shared/generic/tools';
 
 /**
  * Parent
@@ -153,12 +154,17 @@ export default class Parent extends React.Component {
 				this.props.value[lOrder[i]] :
 				null;
 
+			// Grid sizes
+			let gridSizes = this.props.gridSizes[lOrder[i]] ||
+							this.props.gridSizes.__default__ ||
+							{xs: 12, sm: 6, lg: 3}
+
 			// Check what kind of node it is
 			switch(sClass) {
 				case 'ArrayNode':
 				case 'Parent':
 					lElements.push(
-						<Grid key={i} item xs={12}>
+						<Grid key={i} item {...gridSizes}>
 							{Child.create(sClass, {
 								label: this.props.label,
 								nodeVariant: this.props.nodeVariant,
@@ -191,11 +197,6 @@ export default class Parent extends React.Component {
 					if(oDynamicOptions && lOrder[i] in oDynamicOptions) {
 						oProps.onChange = oDynamicOptions[lOrder[i]];
 					}
-
-					// Grid sizes
-					let gridSizes = this.props.gridSizes[lOrder[i]] ||
-									this.props.gridSizes.__default__ ||
-									{xs: 12}
 
 					// Create the new element and push it to the list
 					lElements.push(
@@ -276,7 +277,7 @@ export default class Parent extends React.Component {
 			else {
 
 				// If the value isn't null, add it
-				if(newVal !== null) {
+				if(!empty(newVal)) {
 					oRet[k] = newVal;
 				}
 			}
