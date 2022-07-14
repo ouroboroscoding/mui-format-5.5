@@ -205,7 +205,7 @@ export default class Form extends React.Component {
 
 	submitError(error) {
 		if(error.code === 1001) {
-			this.parent.error(error.msg);
+			this.parent.error(Rest.toTree(error.msg));
 		} else if(error.code.toString() in this.props.handleErrors) {
 
 			// If the value is already an object
