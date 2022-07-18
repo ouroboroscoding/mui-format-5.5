@@ -140,6 +140,7 @@ export default class ArrayNode extends React.Component {
 					name={this.props.name}
 					node={this.props.node}
 					onEnter={this.props.onEnter}
+					placeholder={this.props.placeholder}
 					value={this.props.value}
 					validation={this.props.validation}
 				/>
@@ -291,6 +292,7 @@ ArrayNode.propTypes = {
 	name: PropTypes.string,
 	node: PropTypes.instanceOf(FormatOC.Array).isRequired,
 	onEnter: PropTypes.func,
+	placeholder: PropTypes.string,
 	type: PropTypes.oneOf(['create', 'search', 'update']).isRequired,
 	value: PropTypes.array,
 	validation: PropTypes.bool

@@ -274,6 +274,7 @@ Node.propTypes = {
 	node: PropTypes.instanceOf(FNode).isRequired,
 	onChange: PropTypes.func,
 	onEnter: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
+	placeholder: PropTypes.string,
 	type: PropTypes.oneOf(['create', 'search', 'update']).isRequired,
 	value: PropTypes.any,
 	validation: PropTypes.bool,
@@ -455,7 +456,6 @@ export class NodeDate extends NodeBase {
 		// If the label is a placeholder, add additional props
 		if(this.props.label === 'placeholder') {
 			props.label = this.props.display.title;
-
 		}
 
 		// Render
@@ -532,7 +532,6 @@ export class NodeDatetime extends NodeBase {
 		// If the label is a placeholder, add additional props
 		if(this.props.label === 'placeholder') {
 			props.label = this.props.display.title;
-
 		}
 
 		// Render
@@ -705,8 +704,10 @@ export class NodeMultiSelectCSV extends NodeBase {
 
 		// If the label is a placeholder, add additional props
 		if(this.props.label === 'placeholder') {
-			props.label= this.props.display.title;
-
+			props.label = this.props.display.title;
+			props.placeholder = this.props.placeholder || this.props.display.title;
+		} else if(this.props.placeholder) {
+			props.placeholder = this.props.placeholder;
 		}
 
 		return (
@@ -825,8 +826,9 @@ export class NodeNumber extends NodeBase {
 		// If the label is a placeholder
 		if(this.props.label === 'placeholder') {
 			props.label = this.props.display.title;
-			props.placeholder = this.props.display.placeholder;
-
+			props.placeholder = this.props.placeholder || this.props.display.title;
+		} else if(this.props.placeholder) {
+			props.placeholder = this.props.placeholder;
 		}
 
 		// Render
@@ -903,8 +905,9 @@ export class NodePassword extends NodeBase {
 		// If the label is a placeholder, add additional props
 		if(this.props.label === 'placeholder') {
 			props.label = this.props.display.title;
-			props.placeholder = this.props.display.title;
-
+			props.placeholder = this.props.placeholder || this.props.display.title;
+		} else if(this.props.placeholder) {
+			props.placeholder = this.props.placeholder;
 		}
 
 		// Render
@@ -1055,8 +1058,9 @@ export class NodePrice extends NodeBase {
 		// If the label is a placeholder
 		if(this.props.label === 'placeholder') {
 			props.label = this.props.display.title;
-			props.placeholder = this.props.display.placeholder;
-
+			props.placeholder = this.props.placeholder || this.props.display.title;
+		} else if(this.props.placeholder) {
+			props.placeholder = this.props.placeholder;
 		}
 
 		// Render
@@ -1280,8 +1284,9 @@ export class NodeText extends NodeBase {
 		// If the label is a placeholder, add additional props
 		if(this.props.label === 'placeholder') {
 			props.label = this.props.display.title;
-			props.placeholder = this.props.display.placeholder;
-
+			props.placeholder = this.props.placeholder || this.props.display.title;
+		} else if(this.props.placeholder) {
+			props.placeholder = this.props.placeholder;
 		}
 
 		// Render
@@ -1365,7 +1370,9 @@ export class NodeTextArea extends React.Component {
 		// If the label is a placeholder, add additional props
 		if(this.props.label === 'placeholder') {
 			props.label = this.props.display.title;
-			props.placeholder = this.props.display.title;
+			props.placeholder = this.props.placeholder || this.props.display.title;
+		} else if(this.props.placeholder) {
+			props.placeholder = this.props.placeholder;
 		}
 
 		// If there's a max, add it to props
