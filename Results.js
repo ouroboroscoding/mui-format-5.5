@@ -363,6 +363,8 @@ function ResultsRow(props) {
 						<FormComponent
 							cancel={() => updateSet(false)}
 							errors={props.errors}
+							gridSizes={props.gridSizes}
+							gridSpacing={props.gridSpacing}
 							noun={props.info.noun}
 							service={props.info.service}
 							success={updateSuccess}
@@ -397,6 +399,16 @@ ResultsRow.propTypes = {
 	data: PropTypes.object.isRequired,
 	errors: PropTypes.object.isRequired,
 	fields: PropTypes.array.isRequired,
+	gridSizes: PropTypes.objectOf(
+		PropTypes.exact({
+			xs: PropTypes.number,
+			sm: PropTypes.number,
+			md: PropTypes.number,
+			lg: PropTypes.number,
+			xl: PropTypes.number
+		})
+	),
+	gridSpacing: PropTypes.number,
 	info: PropTypes.object.isRequired,
 	menu: PropTypes.array.isRequired,
 	options: PropTypes.object.isRequired,
@@ -758,6 +770,8 @@ export default class Results extends React.PureComponent {
 								data={row}
 								errors={this.props.errors}
 								fields={this.fields}
+								gridSizes={this.props.gridSizes}
+								gridSpacing={this.props.gridSpacing}
 								info={this.info}
 								key={row[this.info.primary]}
 								menu={this.props.menu}
@@ -888,6 +902,16 @@ Results.propTypes = {
 	data: PropTypes.array.isRequired,
 	errors: PropTypes.object,
 	fields: PropTypes.array,
+	gridSizes: PropTypes.objectOf(
+		PropTypes.exact({
+			xs: PropTypes.number,
+			sm: PropTypes.number,
+			md: PropTypes.number,
+			lg: PropTypes.number,
+			xl: PropTypes.number
+		})
+	),
+	gridSpacing: PropTypes.number,
 	menu: PropTypes.array,
 	noun: PropTypes.string.isRequired,
 	order: PropTypes.string,
@@ -905,6 +929,8 @@ Results.defaultProps = {
 	custom: {},
 	errors: {},
 	fields: [],
+	gridSizes: {__default__: {xs: 12, sm: 6, lg: 3}},
+	gridSpacing: 2,
 	menu: [],
 	order: "asc",
 	remove: false,
