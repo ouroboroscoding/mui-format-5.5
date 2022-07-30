@@ -280,12 +280,14 @@ export class SelectRest extends SelectBase {
 	 * @access public
 	 * @param String service Name of the service to fetch data from
 	 * @param String noun Noun of the service
-	 * @param String key The key used to make the key/value pairs
+	 * @param String[]|Function fields A list of [key, value], or a function
+	 * 							that return [key, value] for the element passed
+	 * 							to it
 	 * @param String value The value used to make the key/value pairs
 	 * @param Array[] data Default data
 	 * @return SelectRest
 	 */
-	constructor(service, noun, key='_id', value='name', data=[]) {
+	constructor(service, noun, fields=['_id', 'name'], data=[]) {
 
 		// Call the base class constructor
 		super();
@@ -293,8 +295,7 @@ export class SelectRest extends SelectBase {
 		// Store the service and noun
 		this._service = service;
 		this._noun = noun;
-		this._key = key;
-		this._value = value;
+		this._fields = fields;
 
 		// Init the data
 		this._data = data;
@@ -360,13 +361,17 @@ export class SelectRest extends SelectBase {
 				// Generate the name/value pairs
 				this._data = [];
 				for(let o of res.data) {
-					this._data.push([o[this._key], o[this._value]]);
+					if(typeof this._fields === 'function') {
+						this._data.push(this._fields(o));
+					} else {
+						this._data.push([o[this._fields[0]], o[this._fields[1]]]);
+					}
 				}
 
 				// Notify the trackers
 				this.notify(this._data);
 			}
-		})
+		});
 	}
 }
 
