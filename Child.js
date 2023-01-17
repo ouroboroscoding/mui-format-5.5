@@ -8,11 +8,11 @@
  * @created 2022-03-19
  */
 
+// Ouroboros
+import { isObject } from '@ouroboros/tools';
+
 // NPM modules
 import React from 'react';
-
-// Generic modules
-import { isObject } from 'shared/generic/tools';
 
 // Private variables
 const _components = {};

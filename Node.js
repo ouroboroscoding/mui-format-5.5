@@ -8,8 +8,11 @@
  * @created 2022-03-19
  */
 
-// NPM modules
+// Ouroboros
+import { afindi, isObject, ucfirst } from '@ouroboros/tools';
 import FNode from 'format-oc/Node';
+
+// NPM modules
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -37,9 +40,6 @@ import PhoneInput from 'react-phone-input-material-ui'
 // Format modules
 import Child from './Child';
 import { SelectBase } from './Shared';
-
-// Generic modules
-import { afindi, isObject, ucfirst } from 'shared/generic/tools';
 
 /**
  * Node

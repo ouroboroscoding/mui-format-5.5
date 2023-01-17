@@ -8,8 +8,14 @@
  * @created 2022-03-19
  */
 
-// NPM modules
+// Ouroboros
+import { rest } from '@ouroboros/body';
+import { hash } from '@ouroboros/browser';
+import events from '@ouroboros/events';
+import { empty, isObject } from '@ouroboros/tools';
 import FormatOC from 'format-oc';
+
+// NPM modules
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -20,13 +26,7 @@ import Button from '@mui/material/Button';
 // Format
 import Parent from './Parent';
 
-// Shared Communications
-import Rest from 'shared/communication/rest';
-
 // Shared Generic
-import Events from 'shared/generic/events';
-import Hash from 'shared/generic/hash';
-import { empty, isObject } from 'shared/generic/tools';
 
 // Search
 export default class Search extends React.Component {
@@ -61,10 +61,10 @@ export default class Search extends React.Component {
 	componentDidMount() {
 
 		// Track hash changes
-		Hash.subscribe(this.props.hash, this.search);
+		hash.subscribe(this.props.hash, this.search);
 
 		// If we have a hash value
-		let sHash = Hash.get(this.props.hash, null);
+		let sHash = hash.get(this.props.hash, null);
 		if(sHash) {
 			this.search(sHash);
 		}
@@ -73,11 +73,11 @@ export default class Search extends React.Component {
 	componentWillUnmount() {
 
 		// Stop traching hash changes
-		Hash.unsubscribe(this.props.hash, this.search);
+		hash.unsubscribe(this.props.hash, this.search);
 	}
 
 	clear() {
-		Hash.set(this.props.hash);
+		hash.set(this.props.hash);
 	}
 
 	query() {
@@ -89,7 +89,7 @@ export default class Search extends React.Component {
 		if(!empty(oValues)) {
 
 			// Turn them into JSON and store them in the hash
-			Hash.set(this.props.hash, JSON.stringify(oValues));
+			hash.set(this.props.hash, JSON.stringify(oValues));
 		}
 	}
 
@@ -107,7 +107,7 @@ export default class Search extends React.Component {
 		this.parent.value = values;
 
 		// Run the search
-		Rest.read(this.props.service, this.props.noun, {
+		rest.read(this.props.service, this.props.noun, {
 			filter: values
 		}).then(res => {
 
@@ -118,7 +118,7 @@ export default class Search extends React.Component {
 
 			// If there's a warning
 			if(res.warning) {
-				Events.trigger('warning', res.warning);
+				events.trigger('warning', res.warning);
 			}
 
 			// If there's data
@@ -147,7 +147,7 @@ export default class Search extends React.Component {
 				}
 			}
 		} else {
-			Events.trigger('error', error);
+			events.trigger('error', error);
 		}
 	}
 

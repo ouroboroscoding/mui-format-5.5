@@ -8,8 +8,12 @@
  * @created 2022-03-19
  */
 
-// NPM modules
+// Ouroboros
+import events from '@ouroboros/events';
+import { empty } from '@ouroboros/tools';
 import FormatOC from 'format-oc';
+
+// NPM modules
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -20,10 +24,6 @@ import Typography from '@mui/material/Typography';
 // Components
 import Child from './Child';
 import { SelectHash } from './Shared';
-
-// Generic modules
-import Events from 'shared/generic/events';
-import { empty } from 'shared/generic/tools';
 
 /**
  * Parent
@@ -66,7 +66,7 @@ export default class Parent extends React.Component {
 			if(k in this.fields) {
 				this.fields[k].error(errors[k]);
 			} else {
-				Events.trigger('error', 'Field not found error: ' + errors[k] + ' (' + k + ')');
+				events.trigger('error', 'Field not found error: ' + errors[k] + ' (' + k + ')');
 			}
 		}
 	}

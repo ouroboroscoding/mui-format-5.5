@@ -8,10 +8,17 @@
  * @created 2022-03-19
  */
 
+// Ouroboros
+import { rest } from '@ouroboros/body';
+import { clipboard } from '@ouroboros/browser';
+import events from '@ouroboros/events';
+import { iso, elapsed } from '@ouroboros/dates';
+import { afindi, clone, omap, ucfirst } from '@ouroboros/tools';
+import FormatOC from 'format-oc';
+
 // NPM modules
 import { createObjectCsvStringifier } from 'csv-writer-browser';
 import Decimal from 'decimal.js';
-import FormatOC from 'format-oc';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -37,15 +44,6 @@ import FormComponent from './Form';
 
 // Format modules
 import { SelectBase } from './Shared';
-
-// Communications
-import Rest from 'shared/communication/rest';
-
-// Generic modules
-import Clipboard from 'shared/generic/clipboard';
-import Events from 'shared/generic/events';
-import { iso, elapsed } from 'shared/generic/dates';
-import { afindi, clone, omap, ucfirst } from 'shared/generic/tools';
 
 /**
  * Pagination Actions
@@ -166,8 +164,8 @@ function ResultsRow(props) {
 	function copyKey() {
 
 		// Copy the primary key to the clipboard then notify the user
-		Clipboard.copy(props.data[props.info.primary]).then(b => {
-			Events.trigger('success', 'Record key copied to clipboard');
+		clipboard.copy(props.data[props.info.primary]).then(b => {
+			events.trigger('success', 'Record key copied to clipboard');
 		});
 	}
 
@@ -657,7 +655,7 @@ export default class Results extends React.PureComponent {
 
 		// If there's no data, do nothing
 		if(this.state.data.length === 0) {
-			Events.trigger('error', 'No data to export to CSV');
+			events.trigger('error', 'No data to export to CSV');
 			return;
 		}
 
@@ -711,9 +709,9 @@ export default class Results extends React.PureComponent {
 
 		// Save the new state
 		this.setState({
-			"data": this.sortData(clone(this.state.data), order, orderBy),
-			"order": order,
-			"orderBy": orderBy
+			data: this.sortData(clone(this.state.data), order, orderBy),
+			order: order,
+			orderBy: orderBy
 		});
 	}
 
@@ -846,22 +844,22 @@ export default class Results extends React.PureComponent {
 	recordRemoved(key) {
 
 		// Send the key to the service via rest
-		Rest.delete(this.props.service, this.props.noun, {
+		rest.delete(this.props.service, this.props.noun, {
 			[this.info.primary]: key
 		}).then(res => {
 
 			// If there's an error
 			if(res.error && !res._handled) {
 				if(res.error.code in this.props.errors) {
-					Events.trigger('error', this.props.errors[res.error.code]);
+					events.trigger('error', this.props.errors[res.error.code]);
 				} else {
-					Events.trigger('error', res.error);
+					events.trigger('error', res.error);
 				}
 			}
 
 			// If there's a warning
 			if(res.warning) {
-				Events.trigger('warning', res.warning);
+				events.trigger('warning', res.warning);
 			}
 
 			// If there's data

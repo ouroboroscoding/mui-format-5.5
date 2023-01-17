@@ -8,11 +8,9 @@
  * @created 2022-03-19
  */
 
-// Communications
-import Rest from 'shared/communication/rest';
-
-// Generic
-import Events from 'shared/generic/events';
+// Ouroboros
+import { rest } from '@ouroboros/body';
+import events from '@ouroboros/events';
 
 /**
  * Select Base
@@ -345,14 +343,14 @@ export class SelectRest extends SelectBase {
 	_fetch() {
 
 		// Make the request to the server
-		Rest.read(this._service, this._noun, {}).done(res => {
+		rest.read(this._service, this._noun, {}).done(res => {
 
 			// If there's an error or warning
 			if(res.error && !res._handled) {
-				Events.trigger('error', res.error);
+				events.trigger('error', res.error);
 			}
 			if(res.warning) {
-				Events.trigger('warning', res.warning);
+				events.trigger('warning', res.warning);
 			}
 
 			// If we got data

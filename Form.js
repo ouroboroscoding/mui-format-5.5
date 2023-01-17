@@ -8,8 +8,13 @@
  * @created 2022-03-19
  */
 
-// NPM modules
+// Ouroboros
+import { rest } from '@ouroboros/body';
+import events from '@ouroboros/events';
+import { isObject } from '@ouroboros/tools';
 import FormatOC from 'format-oc';
+
+// NPM modules
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -20,13 +25,6 @@ import Typography from '@mui/material/Typography';
 
 // Format
 import Parent from './Parent';
-
-// Communications
-import Rest from 'shared/communication/rest';
-
-// Generic
-import Events from 'shared/generic/events';
-import { isObject } from 'shared/generic/tools';
 
 /**
  * Form
@@ -108,7 +106,7 @@ export default class Form extends React.Component {
 		else {
 
 			// Send the data to the service via rest
-			Rest.create(this.props.service,
+			rest.create(this.props.service,
 						this.props.noun,
 						oValues
 			).done(res => {
@@ -120,7 +118,7 @@ export default class Form extends React.Component {
 
 				// If there's a warning
 				if(res.warning) {
-					Events.trigger('warning', res.warning);
+					events.trigger('warning', res.warning);
 				}
 
 				// If there's data
@@ -134,7 +132,7 @@ export default class Form extends React.Component {
 	createSuccess(data, res) {
 
 		// Show the popup
-		Events.trigger('success', 'Created');
+		events.trigger('success', 'Created');
 
 		// If there's a success callback
 		if(this.props.success) {
@@ -205,7 +203,7 @@ export default class Form extends React.Component {
 
 	submitError(error) {
 		if(error.code === 1001) {
-			this.parent.error(Rest.toTree(error.msg));
+			this.parent.error(rest.toTree(error.msg));
 		} else if(error.code.toString() in this.props.handleErrors) {
 
 			// If the value is already an object
@@ -218,7 +216,7 @@ export default class Form extends React.Component {
 				}
 			}
 		} else {
-			Events.trigger('error', error);
+			events.trigger('error', error);
 		}
 	}
 
@@ -258,7 +256,7 @@ export default class Form extends React.Component {
 		else {
 
 			// Send the data to the service via rest
-			Rest.update(this.props.service,
+			rest.update(this.props.service,
 						this.props.noun,
 						oValues
 			).done(res => {
@@ -270,7 +268,7 @@ export default class Form extends React.Component {
 
 				// If there's a warning
 				if(res.warning) {
-					Events.trigger('warning', res.warning);
+					events.trigger('warning', res.warning);
 				}
 
 				// If there's data
@@ -284,7 +282,7 @@ export default class Form extends React.Component {
 	updateSuccess(data, res) {
 
 		// Show the popup
-		Events.trigger('success', 'Saved');
+		events.trigger('success', 'Saved');
 
 		// If there's a success callback, call it with the returned data
 		if(this.props.success) {

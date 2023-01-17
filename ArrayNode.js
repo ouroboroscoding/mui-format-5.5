@@ -8,10 +8,14 @@
  * @created 2022-03-19
  */
 
-// NPM modules
+// Ouroboros
+import { afindi, clone, ucfirst } from '@ouroboros/tools';
 import FormatOC from 'format-oc';
+
+// NPM modules
 import PropTypes from 'prop-types';
 import React from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 // Material UI
 import Box from '@mui/material/Grid';
@@ -23,9 +27,6 @@ import { red } from '@mui/material/colors';
 
 // Components
 import Child from './Child';
-
-// Generic modules
-import { afindi, clone, ucfirst, uuidv4 } from 'shared/generic/tools';
 
 /**
  * Array Node
