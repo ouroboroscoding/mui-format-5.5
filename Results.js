@@ -481,7 +481,7 @@ export default class Results extends React.PureComponent {
 		super(props);
 
 		// Get the display options
-		let oReact = props.tree.special('react') || {};
+		let oReact = props.tree.special('ui') || {};
 
 		// If there's no primary, assume '_id'
 		if(!('primary' in oReact)) {
@@ -513,7 +513,7 @@ export default class Results extends React.PureComponent {
 		for(let k of this.fields) {
 
 			// Get the react section
-			let oNode = props.tree.get(k).special('react') || {};
+			let oNode = props.tree.get(k).special('ui') || {};
 
 			// Set the title
 			this.titles.push({

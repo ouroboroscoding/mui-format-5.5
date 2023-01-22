@@ -77,7 +77,7 @@ export default class Parent extends React.Component {
 		let lElements = [];
 
 		// Get the React special section if there is one
-		let oReact = this.props.node.special('react') || {};
+		let oReact = this.props.node.special('ui') || {};
 
 		// Init the order
 		let lOrder = null;
@@ -123,7 +123,7 @@ export default class Parent extends React.Component {
 				}
 
 				// Get the react section of the node
-				let oReact = this.props.node.get(o.node).special('react') || {};
+				let oReact = this.props.node.get(o.node).special('ui') || {};
 
 				// Create a SelectHash using the options and the current value
 				//	of the node, and store it under the node's options
@@ -133,7 +133,7 @@ export default class Parent extends React.Component {
 				);
 
 				// Overwrite the react special
-				this.props.node.get(o.node).special('react', oReact);
+				this.props.node.get(o.node).special('ui', oReact);
 
 				// Store the callback for the trigger
 				oDynamicOptions[o.trigger] = oReact.options.key.bind(oReact.options);

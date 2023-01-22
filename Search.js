@@ -37,7 +37,7 @@ export default class Search extends React.Component {
 		super(props);
 
 		// Get the display options
-		let oDisplay = props.tree.special('react') || {};
+		let oDisplay = props.tree.special('ui') || {};
 
 		// If there's no primary, assume '_id'
 		if(!('primary' in oDisplay)) {

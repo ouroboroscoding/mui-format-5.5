@@ -129,7 +129,7 @@ export class Node extends React.Component {
 	generateState() {
 
 		// Get the react display properties
-		let oReact = this.props.node.special('react') || {}
+		let oReact = this.props.node.special('ui') || {}
 
 		// If the title is not set
 		if(!('title' in oReact)) {
@@ -189,6 +189,10 @@ export class Node extends React.Component {
 				}
 			</React.Fragment>
 		);
+	}
+
+	reset() {
+		this.el.reset();
 	}
 
 	get value() {
@@ -321,6 +325,12 @@ export class NodeBase extends React.Component {
 		if(event.key === 'Enter' && this.props.onEnter) {
 			this.props.onEnter();
 		}
+	}
+	reset() {
+		this.setState({
+			value: null,
+			error: false
+		});
 	}
 	get value() {
 		return this.state.value === '' ? null : this.state.value;

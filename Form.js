@@ -43,7 +43,7 @@ export default class Form extends React.Component {
 		super(props);
 
 		// Get the display options
-		let oReact = props.tree.special('react') || {};
+		let oReact = props.tree.special('ui') || {};
 
 		// If there's no primary, assume '_id'
 		if(!('primary' in oReact)) {
@@ -149,8 +149,12 @@ export default class Form extends React.Component {
 			// Else, we probably just got the primary key
 			else {
 
-				// Add the returned key to the existing data
-				data[this.state.primary] = res;
+				// If we don't already have a value for the primary key
+				if(!(this.state.primary in data)) {
+
+					// Add the returned key to the existing data
+					data[this.state.primary] = res;
+				}
 			}
 
 			// Pass it all to the callback

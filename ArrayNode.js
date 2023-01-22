@@ -51,7 +51,7 @@ export default class ArrayNode extends React.Component {
 		this.nodes = {};
 
 		// Get the react display properties
-		let oReact = this.props.node.special('react') || {}
+		let oReact = this.props.node.special('ui') || {}
 
 		// If the title is not set
 		if(!('title' in oReact)) {
