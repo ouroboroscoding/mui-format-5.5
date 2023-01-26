@@ -273,82 +273,86 @@ function ResultsRow(props) {
 		);
 	}
 
-	// Generate the actions cell
-	lCells.push(
-		<TableCell key={-1} className="actions" align="right">
-			{props.actions.map((a, i) => {
-				if(a.dynamic && typeof a.dynamic === 'function') {
-					a = Object.assign(a, a.dynamic(props.data));
-				}
+	// If we have actions
+	if(props.actions) {
 
-				// If there's a url
-				if(a.url) {
-					return (
-						<Link key={i} to={a.url}>
+		// Generate the actions cell
+		lCells.push(
+			<TableCell key={-1} className="actions" align="right">
+				{props.actions.map((a, i) => {
+					if(a.dynamic && typeof a.dynamic === 'function') {
+						a = Object.assign(a, a.dynamic(props.data));
+					}
+
+					// If there's a url
+					if(a.url) {
+						return (
+							<Link key={i} to={a.url}>
+								<Tooltip key={i} title={a.tooltip}>
+									<IconButton data-index={i} className="icon">
+										<i className={a.icon + ' ' + (actions[i.toString()] ? 'open' : 'closed')} />
+									</IconButton>
+								</Tooltip>
+							</Link>
+						);
+					}
+
+					// Else, there should be a callback or component
+					else {
+						return (
 							<Tooltip key={i} title={a.tooltip}>
-								<IconButton data-index={i} className="icon">
+								<IconButton data-index={i} className="icon" onClick={ev => action(ev.currentTarget.dataset.index)}>
 									<i className={a.icon + ' ' + (actions[i.toString()] ? 'open' : 'closed')} />
 								</IconButton>
 							</Tooltip>
-						</Link>
-					);
+						);
+					}
+				})}
+				{props.update &&
+					<Tooltip title="Edit the record">
+						<IconButton className="icon" onClick={ev => updateSet(b => !b)}>
+							<i className={'fa-solid fa-edit ' + (update ? 'open' : 'closed')} />
+						</IconButton>
+					</Tooltip>
 				}
-
-				// Else, there should be a callback or component
-				else {
-					return (
-						<Tooltip key={i} title={a.tooltip}>
-							<IconButton data-index={i} className="icon" onClick={ev => action(ev.currentTarget.dataset.index)}>
-								<i className={a.icon + ' ' + (actions[i.toString()] ? 'open' : 'closed')} />
-							</IconButton>
-						</Tooltip>
-					);
+				{props.remove &&
+					<Tooltip title="Delete the record">
+						<IconButton className="icon" onClick={() => props.remove(props.data[props.info.primary])}>
+							<i className="fa-solid fa-trash-alt" />
+						</IconButton>
+					</Tooltip>
 				}
-			})}
-			{props.update &&
-				<Tooltip title="Edit the record">
-					<IconButton className="icon" onClick={ev => updateSet(b => !b)}>
-						<i className={'fa-solid fa-edit ' + (update ? 'open' : 'closed')} />
-					</IconButton>
-				</Tooltip>
-			}
-			{props.remove &&
-				<Tooltip title="Delete the record">
-					<IconButton className="icon" onClick={() => props.remove(props.data[props.info.primary])}>
-						<i className="fa-solid fa-trash-alt" />
-					</IconButton>
-				</Tooltip>
-			}
-			{props.menu.length > 0 &&
-				<Tooltip title="More">
-					<IconButton className="icon" onClick={ev => menuSet(b => b ? false : ev.currentTarget)}>
-						<i className="fa-solid fa-ellipsis-vertical" />
-					</IconButton>
-				</Tooltip>
-			}
-			{menu !== false &&
-				<Menu
-					anchorEl={menu}
-					open={true}
-					onClose={ev => menuSet(false)}
-				>
-					{props.menu.map((o,i) =>
-						<MenuItem key={i} onClick={ev => {
-							menuSet(false);
-							o.callback(props.data);
-						}}>
-							{o.icon &&
-								<ListItemIcon>
-									<i className={o.icon} />
-								</ListItemIcon>
-							}
-							{o.title}
-						</MenuItem>
-					)}
-				</Menu>
-			}
-		</TableCell>
-	);
+				{props.menu.length > 0 &&
+					<Tooltip title="More">
+						<IconButton className="icon" onClick={ev => menuSet(b => b ? false : ev.currentTarget)}>
+							<i className="fa-solid fa-ellipsis-vertical" />
+						</IconButton>
+					</Tooltip>
+				}
+				{menu !== false &&
+					<Menu
+						anchorEl={menu}
+						open={true}
+						onClose={ev => menuSet(false)}
+					>
+						{props.menu.map((o,i) =>
+							<MenuItem key={i} onClick={ev => {
+								menuSet(false);
+								o.callback(props.data);
+							}}>
+								{o.icon &&
+									<ListItemIcon>
+										<i className={o.icon} />
+									</ListItemIcon>
+								}
+								{o.title}
+							</MenuItem>
+						)}
+					</Menu>
+				}
+			</TableCell>
+		);
+	}
 
 	return (
 		<React.Fragment>
@@ -393,6 +397,7 @@ function ResultsRow(props) {
 
 // Valid props
 ResultsRow.propTypes = {
+	actions: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]).isRequired,
 	custom: PropTypes.object.isRequired,
 	data: PropTypes.object.isRequired,
 	errors: PropTypes.object.isRequired,
@@ -458,6 +463,7 @@ function TotalsRow(props) {
 
 // Valid props
 TotalsRow.propTypes = {
+	actions: PropTypes.bool.isRequired,
 	fields: PropTypes.array.isRequired,
 	info: PropTypes.object.isRequired,
 	totals: PropTypes.object.isRequired
@@ -749,13 +755,15 @@ export default class Results extends React.PureComponent {
 									</TableSortLabel>
 								</TableCell>
 							))}
-							<TableCell align="right" className="actions">
-								<Tooltip title="Export CSV">
-									<IconButton onClick={this.exportCsv}>
-										<i className="fa-solid fa-file-csv" />
-									</IconButton>
-								</Tooltip>
-							</TableCell>
+							{this.props.actions &&
+								<TableCell align="right" className="actions">
+									<Tooltip title="Export CSV">
+										<IconButton onClick={this.exportCsv}>
+											<i className="fa-solid fa-file-csv" />
+										</IconButton>
+									</Tooltip>
+								</TableCell>
+							}
 						</TableRow>
 					</TableHead>
 					<TableBody>
@@ -785,6 +793,7 @@ export default class Results extends React.PureComponent {
 					<TableFooter>
 						{this.props.totals &&
 							<TotalsRow
+								actions={this.props.actions ? true : false}
 								fields={this.fields}
 								info={this.info}
 								totals={this.state.totals || {}}
@@ -897,7 +906,7 @@ export default class Results extends React.PureComponent {
 
 // Valid props
 Results.propTypes = {
-	actions: PropTypes.array,
+	actions: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 	custom: PropTypes.object,
 	data: PropTypes.array.isRequired,
 	errors: PropTypes.object,
@@ -913,11 +922,11 @@ Results.propTypes = {
 	),
 	gridSpacing: PropTypes.number,
 	menu: PropTypes.array,
-	noun: PropTypes.string.isRequired,
+	noun: PropTypes.string,
 	order: PropTypes.string,
 	orderBy: PropTypes.string.isRequired,
 	remove: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
-	service: PropTypes.string.isRequired,
+	service: PropTypes.string,
 	totals: PropTypes.bool,
 	tree: PropTypes.instanceOf(FormatOC.Tree).isRequired,
 	update: PropTypes.oneOfType([PropTypes.func, PropTypes.bool])
