@@ -24,6 +24,11 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 // Material UI
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Menu from '@mui/material/Menu';
@@ -38,6 +43,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 
 // Components
 import FormComponent from './Form';
@@ -127,6 +133,7 @@ function ResultsRow(props) {
 	// State
 	let [actions, actionsSet] = useState({});
 	let [menu, menuSet] = useState(false);
+	let [remove, removeSet] = useState(false);
 	let [update, updateSet] = useState(false);
 
 	// Called when a customer action icon is clicked
@@ -317,7 +324,7 @@ function ResultsRow(props) {
 				}
 				{props.remove &&
 					<Tooltip title="Delete the record">
-						<IconButton className="icon" onClick={() => props.remove(props.data[props.info.primary])}>
+						<IconButton className="icon" onClick={() => removeSet(true)}>
 							<i className="fa-solid fa-trash-alt" />
 						</IconButton>
 					</Tooltip>
@@ -349,6 +356,21 @@ function ResultsRow(props) {
 							</MenuItem>
 						)}
 					</Menu>
+				}
+				{remove &&
+					<Dialog
+						onClose={() => removeSet(false)}
+						open={true}
+					>
+						<DialogTitle>Confirm Delete</DialogTitle>
+						<DialogContent>
+							<Typography>Please confirm you wish to delete this record.</Typography>
+						</DialogContent>
+						<DialogActions>
+							<Button color="secondary" onClick={() => removeSet(false)} variant="contained">Cancel</Button>
+							<Button color="primary" onClick={() => {removeSet(false); props.remove(props.data[props.info.primary])}} variant="contained">Delete</Button>
+						</DialogActions>
+					</Dialog>
 				}
 			</TableCell>
 		);
