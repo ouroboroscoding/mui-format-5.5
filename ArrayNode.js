@@ -18,7 +18,7 @@ import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 // Material UI
-import Box from '@mui/material/Grid';
+import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';

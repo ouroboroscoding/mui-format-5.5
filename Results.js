@@ -265,7 +265,7 @@ function ResultsRow(props) {
 
 					// Else, set it as is
 					else {
-						mContent = mValue;
+						mContent = String(mValue);
 					}
 				} else {
 					mContent = '';
@@ -550,7 +550,20 @@ export default class Results extends React.PureComponent {
 			});
 
 			// Set the type
-			oTypes[k] = oNode.type || props.tree.get(k).type()
+			//	If we have a specifically passed type
+			if(oNode.type) {
+				oTypes[k] = oNode.type
+			}
+
+			//	If it's a node
+			else if(props.tree.get(k).class() === 'Node') {
+				oTypes[k] = props.tree.get(k).type();
+			}
+
+			// Else, invalid type
+			else {
+				oTypes[k] = null;
+			}
 
 			// If there's options
 			if(oNode.options) {

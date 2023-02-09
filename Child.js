@@ -72,7 +72,7 @@ function register(name, component) {
 }
 
 // Default export
-let Child = {
+const Child = {
 	create: create,
 	register: register
 }

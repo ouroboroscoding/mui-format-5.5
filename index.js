@@ -2,6 +2,7 @@
 import ArrayNode from './ArrayNode';
 import Child from './Child';
 import Form from './Form';
+import HashNode from './HashNode';
 import { Node } from './Node';
 import Parent from './Parent';
 import Results from './Results';
@@ -12,6 +13,7 @@ export {
 	ArrayNode,
 	Child,
 	Form,
+	HashNode,
 	Node,
 	Parent,
 	Results,

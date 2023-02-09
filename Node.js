@@ -371,7 +371,9 @@ NodeBase.propTypes = {
  *
  * Handles values of a true/false state
  *
- * @extends React.Component
+ * @name NodeBool
+ * @access public
+ * @extends NodeBase
  */
 export class NodeBool extends NodeBase {
 

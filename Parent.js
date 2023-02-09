@@ -162,6 +162,7 @@ export default class Parent extends React.Component {
 			// Check what kind of node it is
 			switch(sClass) {
 				case 'ArrayNode':
+				case 'HashNode':
 				case 'Parent':
 					lElements.push(
 						<Grid key={i} item {...gridSizes}>
