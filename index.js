@@ -7,6 +7,7 @@ import { Node } from './Node';
 import Parent from './Parent';
 import Results from './Results';
 import Search from './Search';
+import Shared from './Shared';
 
 // Export default
 export {
@@ -17,5 +18,6 @@ export {
 	Node,
 	Parent,
 	Results,
-	Search
+	Search,
+	Shared
 }

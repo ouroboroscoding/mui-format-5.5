@@ -198,7 +198,7 @@ function ResultsRow(props) {
 
 	// Generate each cell based on type
 	let lCells = [];
-	for(let i in props.fields) {
+	for(const i in props.fields) {
 
 		// Store field and value
 		let sField = props.fields[i];

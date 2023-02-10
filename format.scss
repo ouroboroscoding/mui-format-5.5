@@ -99,6 +99,12 @@
 		transform-origin: top left;
 		z-index: 1;
 	}
+
+	.data {
+		.MuiInputBase-root {
+			width: 100%;
+		}
+	}
 }
 
 .nodeParent {

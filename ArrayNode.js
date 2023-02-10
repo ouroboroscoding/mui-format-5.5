@@ -9,7 +9,7 @@
  */
 
 // Ouroboros
-import { afindi, clone, ucfirst } from '@ouroboros/tools';
+import { afindi, clone, combine, ucfirst } from '@ouroboros/tools';
 import FormatOC from 'format-oc';
 
 // NPM modules
@@ -63,7 +63,7 @@ export default class ArrayNode extends React.Component {
 
 		// Init state
 		this.state = {
-			custom: sType && sType in ArrayNode._registered ? ArrayNode._registered[sType] : null,
+			custom: null,
 			nodeClass: this.child.class(),
 			display: oReact,
 			elements: this.props.value.map(v => {
@@ -72,6 +72,12 @@ export default class ArrayNode extends React.Component {
 					key: uuidv4()
 				}
 			})
+		}
+
+		// If we have a custom Node
+		if(sType && sType in ArrayNode._registered) {
+			this.state.custom = ArrayNode._registered[sType];
+			this.state.customProps = oReact.props || {};
 		}
 	}
 
@@ -113,8 +119,8 @@ export default class ArrayNode extends React.Component {
 			let lElements = clone(this.state.elements);
 
 			// Remove the deleted index
+			delete this.nodes[lElements[iIndex].key];
 			lElements.splice(iIndex, 1);
-			this.nodes.splice(iIndex, 1);
 
 			// Set the new state
 			this.setState({elements: lElements});
@@ -130,21 +136,24 @@ export default class ArrayNode extends React.Component {
 		if(this.state.custom) {
 
 			// Store the name
-			let ElName = this.state.custom;
+			const ElName = this.state.custom;
+
+			// Combine the regular node props with any custom props
+			const oProps = combine(this.state.customProps, {
+				display: this.state.display,
+				label: this.props.label,
+				ref: el => this.nodes = el,
+				name: this.props.name,
+				node: this.props.node,
+				onEnter: this.props.onEnter,
+				placeholder: this.props.placeholder,
+				value: this.props.value,
+				validation: this.props.validation
+			});
 
 			// Render custom type
 			return (
-				<ElName
-					display={this.state.display}
-					label={this.props.label}
-					ref={el => this.nodes = el}
-					name={this.props.name}
-					node={this.props.node}
-					onEnter={this.props.onEnter}
-					placeholder={this.props.placeholder}
-					value={this.props.value}
-					validation={this.props.validation}
-				/>
+				<ElName {...oProps} />
 			);
 		}
 
@@ -155,8 +164,8 @@ export default class ArrayNode extends React.Component {
 					<Typography className="legend">{this.state.display.title}</Typography>
 				}
 				{this.state.elements.map(o =>
-					<Box key={o.key} className="element">
-						<Box className="data">
+					<Box key={o.key} className="element flexColumns">
+						<Box className="data flexGrow">
 							{Child.create(this.state.nodeClass, {
 								ref: el => this.nodes[o.key] = el,
 								name: this.props.name,
@@ -168,7 +177,7 @@ export default class ArrayNode extends React.Component {
 								validation: this.props.validation
 							})}
 						</Box>
-						<Box className="action">
+						<Box className="actions flexStatic">
 							<Tooltip title="Remove">
 								<IconButton onClick={ev => this.remove(o.key)}>
 									<i className="fas fa-minus-circle" style={{color: red[500]}} />
@@ -178,8 +187,7 @@ export default class ArrayNode extends React.Component {
 					</Box>
 				)}
 				<Box className="element">
-					<Box className="data">&nbsp;</Box>
-					<Box className="action">
+					<Box className="actions">
 						<Tooltip title="Add">
 							<IconButton onClick={ev => this.add()}>
 								<i className="fas fa-plus-circle" style={{color: green[500]}} />

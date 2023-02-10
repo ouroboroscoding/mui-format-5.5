@@ -9,7 +9,7 @@
  */
 
 // Ouroboros
-import { ucfirst } from '@ouroboros/tools';
+import { combine, ucfirst } from '@ouroboros/tools';
 import FormatOC from 'format-oc';
 
 // NPM modules
@@ -63,6 +63,7 @@ export default class HashNode extends React.Component {
 		// Init state
 		this.state = {
 			component: HashNode._registered[oReact.type],
+			customProps: oReact.props || {},
 			display: oReact
 		}
 	}
@@ -80,7 +81,21 @@ export default class HashNode extends React.Component {
 		this.component = null;
 
 		// Store the name
-		let ElName = this.state.component;
+		const ElName = this.state.component;
+
+		// Combine the regular node props with any custom props
+		const oProps = combine(this.state.customProps, {
+			display: this.state.display,
+			label: this.props.label,
+			ref: el => this.component = el,
+			name: this.props.name,
+			node: this.props.node,
+			nodeVariant: this.props.nodeVariant,
+			onEnter: this.props.onEnter,
+			placeholder: this.props.placeholder,
+			value: this.props.value,
+			validation: this.props.validation
+		});
 
 		// Render custom type
 		return (
@@ -88,18 +103,7 @@ export default class HashNode extends React.Component {
 				{this.state.display.title &&
 					<Typography className="legend">{this.state.display.title}</Typography>
 				}
-				<ElName
-					display={this.state.display}
-					label={this.props.label}
-					ref={el => this.component = el}
-					name={this.props.name}
-					node={this.props.node}
-					nodeVariant={this.props.nodeVariant}
-					onEnter={this.props.onEnter}
-					placeholder={this.props.placeholder}
-					value={this.props.value}
-					validation={this.props.validation}
-				/>
+				<ElName {...oProps} />
 			</Box>
 		);
 	}
