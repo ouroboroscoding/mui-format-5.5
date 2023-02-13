@@ -25,6 +25,7 @@ import Typography from '@mui/material/Typography';
 
 // Format
 import Parent from './Parent';
+import { errorTree } from './Shared';
 
 /**
  * Form
@@ -52,10 +53,10 @@ export default class Form extends React.Component {
 
 		// Set the initial state
 		this.state = {
-			"key": ('value' in props && props.value && oReact.primary in props.value) ?
+			key: ('value' in props && props.value && oReact.primary in props.value) ?
 						props.value[oReact.primary] : null,
-			"primary": oReact.primary,
-			"type": props['type']
+			primary: oReact.primary,
+			type: props['type']
 		}
 
 		// Init the parent
@@ -207,7 +208,7 @@ export default class Form extends React.Component {
 
 	submitError(error) {
 		if(error.code === 1001) {
-			this.parent.error(rest.toTree(error.msg));
+			this.parent.error(errorTree(error.msg));
 		} else if(error.code.toString() in this.props.handleErrors) {
 
 			// If the value is already an object

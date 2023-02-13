@@ -243,10 +243,23 @@ export default class Parent extends React.Component {
 			// Get the node
 			let oNode = this.props.node.get(k);
 
-			// Check if the current value is valid
-			if(!oNode.valid(this.fields[k].value)) {
-				this.fields[k].error(oNode.validation_failures[0][1]);
-				bValid = false;
+			// If we have a Node
+			if(oNode.class() === 'Node') {
+
+				// If the value is invalid
+				if(!oNode.valid(this.fields[k].value)) {
+					this.fields[k].error(oNode.validation_failures[0][1]);
+					bValid = false;
+				}
+			}
+
+			// Else, if we have a more complex type
+			else {
+
+				// If the Component is invalid
+				if(!this.fields[k].valid()) {
+					bValid = false;
+				}
 			}
 		}
 

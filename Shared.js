@@ -13,6 +13,63 @@ import { rest } from '@ouroboros/body';
 import events from '@ouroboros/events';
 
 /**
+ * Error Tree
+ *
+ * Converts array of rest field errors into a tree
+ *
+ * @name errorTree
+ * @access public
+ * @param {string[][]} errors The list of errors
+ * @returns {object}
+ */
+export function errorTree(errors) {
+
+	// Init the return
+	let oRet = {}
+
+	// Go through each error
+	for(let i = 0; i < errors.length; ++i) {
+
+		// If the error field has a period
+		if(errors[i][0].includes('.')) {
+
+			// Split it
+			let lField = errors[i][0].split(/\.(.*)/)
+
+			// If we don't have the field already
+			if(!oRet[lField[0]]) {
+				oRet[lField[0]] = []
+			}
+
+			// Add the rest
+			oRet[lField[0]].push([lField[1], errors[i][1]]);
+		}
+
+		// Else it's a flat field
+		else {
+			if(errors[i][1] === 'is not a string') {
+				errors[i][1] = 'missing';
+			}
+			oRet[errors[i][0]] = errors[i][1];
+		}
+	}
+
+	// Go through all the errors we found
+	for(let k in oRet) {
+
+		// If we find an array
+		if(Array.isArray(oRet[k])) {
+
+			// Recurse
+			oRet[k] = errorTree(oRet[k]);
+		}
+	}
+
+	// Return the Tree
+	return oRet;
+}
+
+/**
  * Select Base
  *
  * The base class for dynamic Select types
@@ -22,6 +79,8 @@ import events from '@ouroboros/events';
  */
 export class SelectBase {
 
+	_CLONE_SKIP_ = true;
+
 	/**
 	 * Constructor
 	 *
@@ -29,7 +88,7 @@ export class SelectBase {
 	 *
 	 * @name SelectBase
 	 * @access private
-	 * @returns SelectBase
+	 * @returns {SelectBase}
 	 */
 	constructor() {
 
@@ -44,8 +103,7 @@ export class SelectBase {
 	 *
 	 * @name notify
 	 * @access public
-	 * @param Array data The data to send to all callbacks
-	 * @returns void
+	 * @param {string[][]} data The data to send to all callbacks
 	 */
 	notify(data) {
 
@@ -63,9 +121,8 @@ export class SelectBase {
 	 *
 	 * @name track
 	 * @access public
-	 * @param Function callback The function to call when data changes
-	 * @param bool remove Set to false to remove the callback
-	 * @return void
+	 * @param {Function} callback The function to call when data changes
+	 * @param {boolean} remove Set to false to remove the callback
 	 */
 	track(callback, remove=false) {
 
@@ -110,7 +167,7 @@ export class SelectCustom extends SelectBase {
 	 * @name SelectCustom
 	 * @access public
 	 * @param Array[] data Default data
-	 * @return SelectCustom
+	 * @returns {SelectCustom}
 	 */
 	constructor(data=[]) {
 
@@ -128,9 +185,8 @@ export class SelectCustom extends SelectBase {
 	 *
 	 * @name set
 	 * @access public
-	 * @param Array data An array of arrays with the first element being the key
-	 * 						and the second element being the name
-	 * @returns void
+	 * @param {string[][]} data An array of arrays with the first element being
+	 * 							the key	and the second element being the name
 	 */
 	set(data) {
 
@@ -148,9 +204,8 @@ export class SelectCustom extends SelectBase {
 	 *
 	 * @name track
 	 * @access public
-	 * @param Function callback The function to call when data changes
-	 * @param bool remove Set to false to remove the callback
-	 * @return void
+	 * @param {Function} callback The function to call when data changes
+	 * @param {boolean} remove Set to false to remove the callback
 	 */
 	track(callback, remove=false) {
 
@@ -185,10 +240,10 @@ export class SelectHash extends SelectBase {
 	 *
 	 * @name SelectHash
 	 * @access public
-	 * @param Object hash The key to key/value pairs
-	 * @param String initial_key Optional, the initial key to use, defaults to
-	 * 								the first key in the hash
-	 * @returns SelectHash
+	 * @param {Object} hash The key to key/value pairs
+	 * @param {string|null} initial_key Optional, the initial key to use,
+	 * 									defaults to the first key in the hash
+	 * @returns {SelectHash}
 	 */
 	constructor(hash, initial_key=null) {
 
@@ -212,8 +267,8 @@ export class SelectHash extends SelectBase {
 	 *
 	 * @name key
 	 * @access public
-	 * @param String key Optional, Use to set value, else get
-	 * @returns void
+	 * @param {string} key Optional, Use to set value, else get
+	 * @returns {void|string}
 	 */
 	key(key) {
 
@@ -240,9 +295,8 @@ export class SelectHash extends SelectBase {
 	 *
 	 * @name track
 	 * @access public
-	 * @param Function callback The function to call when data changes
-	 * @param bool remove Set to false to remove the callback
-	 * @return void
+	 * @param {Function} callback The function to call when data changes
+	 * @param {boolean} remove Set to false to remove the callback
 	 */
 	track(callback, remove=false) {
 
@@ -276,14 +330,14 @@ export class SelectRest extends SelectBase {
 	 *
 	 * @name SelectRest
 	 * @access public
-	 * @param String service Name of the service to fetch data from
-	 * @param String noun Noun of the service
-	 * @param String[]|Function fields A list of [key, value], or a function
+	 * @param {string} service Name of the service to fetch data from
+	 * @param {string} noun Noun of the service
+	 * @param {string[]|Function} fields A list of [key, value], or a function
 	 * 							that return [key, value] for the element passed
 	 * 							to it
-	 * @param String value The value used to make the key/value pairs
-	 * @param Array[] data Default data
-	 * @return SelectRest
+	 * @param {string} value The value used to make the key/value pairs
+	 * @param {string[][]} data Default data
+	 * @returns {SelectRest}
 	 */
 	constructor(service, noun, fields=['_id', 'name'], data=[]) {
 
@@ -307,9 +361,8 @@ export class SelectRest extends SelectBase {
 	 *
 	 * @name track
 	 * @access public
-	 * @param Function callback The function to call when data changes
-	 * @param bool remove Set to false to remove the callback
-	 * @return void
+	 * @param {Function} callback The function to call when data changes
+	 * @param {boolean} remove Set to false to remove the callback
 	 */
 	track(callback, remove=false) {
 
@@ -338,7 +391,6 @@ export class SelectRest extends SelectBase {
 	 *
 	 * @name _fetch
 	 * @access private
-	 * @return void
 	 */
 	_fetch() {
 
@@ -375,6 +427,7 @@ export class SelectRest extends SelectBase {
 
 // Default export
 const Shared = {
+	errorTree: errorTree,
 	SelectBase: SelectBase,
 	SelectCustom: SelectCustom,
 	SelectHash: SelectHash,

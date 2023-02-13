@@ -231,11 +231,21 @@ function ResultsRow(props) {
 						if(props.options[sField] === true) {
 							mContent = 'Loading...';
 						} else {
+
+							// If it's a multi-select comma seperated value
 							if(props.info.types[sField] === 'multiselectcsv') {
 								mContent = mValue.split(',').map(s => {
 									return props.options[sField][s.trim()];
 								}).join(', ');
-							} else {
+							}
+
+							// Else, if the value is an array
+							else if(Array.isArray(mValue)) {
+								mContent = mValue.map(m => props.options[sField][m]).join(', ');
+							}
+
+							// Else, assume one option for the value
+							else {
 								mContent = props.options[sField][mValue];
 							}
 						}
