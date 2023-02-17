@@ -49,6 +49,8 @@ export function errorTree(errors) {
 		else {
 			if(errors[i][1] === 'is not a string') {
 				errors[i][1] = 'missing';
+			} else if(errors[i][1] === 'failed regex (custom)') {
+				errors[i][1] = 'invalid';
 			}
 			oRet[errors[i][0]] = errors[i][1];
 		}
