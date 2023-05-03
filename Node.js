@@ -314,8 +314,15 @@ export class NodeBase extends React.Component {
 		this.keyPressed = this.keyPressed.bind(this);
 	}
 	componentDidUpdate(prevProps) {
+		const oState = {};
 		if(prevProps.error !== this.props.error) {
-			this.setState({error: this.props.error});
+			oState.error = this.props.error;
+		}
+		if(prevProps.value !== this.props.value) {
+			oState.value = this.props.value;
+		}
+		if(Object.keys(oState).length) {
+			this.setState(oState);
 		}
 	}
 	error(msg) {
