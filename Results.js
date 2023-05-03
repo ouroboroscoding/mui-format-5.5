@@ -622,11 +622,9 @@ export default class Results extends React.PureComponent {
 	}
 
 	componentDidMount() {
-		let oOptions = {};
 		for(let f in this.dynCallbacks) {
-			oOptions[f] = this.dynCallbacks[f].sd.track(this.dynCallbacks[f].callback).reduce((o, l) => Object.assign(o, {[l[0]]: l[1]}), {});
+			this.dynCallbacks[f].sd.track(this.dynCallbacks[f].callback);
 		}
-		this.setState({options: oOptions});
 	}
 
 	componentWillUnmount() {
